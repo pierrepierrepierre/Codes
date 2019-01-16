@@ -75,7 +75,7 @@ Ndef.clear()
 s.freeAll
 
 
-~gfree.(); ~pstop.(); ~nstop.(); Synth.new("snare", [\amp, 1, \rel, 0.05,\att, 0.001, \pan,0, \relC, 3, \fq, 335, \cutoff, 0.0125]);
+~gfree.(); ~pstop.(); ~nstop.(); Synth.new("snare", [\amp, 1, \rel, 0.0125,\att, 0.0001, \pan,0, \relC, 3, \fq, 335, \cutoff, 0.0125]);
 
 // PLOCS
 (Ndef(\plocs, {arg amp=0.2;
@@ -105,7 +105,7 @@ Ndef(\plocs).clear(30)
 (Ndef(\ff, { Mix.fill(6, {arg i;
 	SinOsc.ar( LFNoise1.kr( [0.0125,0.0025,0.00375].choose ).range(50,106) + (i*4) * 5 * 4, 0)
 }).dup
-// * Line.kr(0, 1, 60) // Attaque douce
+* Line.kr(0, 1, 60) // Attaque douce
 	* 0.015 }).play)
 Ndef(\ff).fadeTime = 0.25
 Ndef(\ff).clear(10)
@@ -123,9 +123,9 @@ Ndef(\tiik).fadeTime = 20
 Ndef(\tiik).clear
 
 
-(Ndef(\basss, { SinOsc.ar([47.5,55] //- FSinOsc.kr(0.0125,0, 4)
+(Ndef(\basss, { SinOsc.ar([47.5,55+6] + 18 - FSinOsc.kr(0.0125,0, 4)
 	// + (TIRand.kr(0, 16, Impulse.kr(0.25)) * 2)
-) * /*AMP*/ 0.25
+) * /*AMP*/ 0.8
 // * LFPulse.kr(0.25, 0, LFNoise1.kr(1).range(0.1,0.75)) // "Enveloppe"
 }))
 
@@ -145,7 +145,7 @@ Ndef(\sub).clear
 
 
 // Claque qui coupe tout
-~gfree.(); ~pstop.(); ~nstop.(); Synth.new("snare", [\amp, 1, \rel, 0.05,\att, 0.001, \pan,0, \relC, 0.1, \fq, 535, \cutoff, 0.0125]);
+~gfree.(); ~pstop.(); ~nstop.(); Synth.new("snare", [\amp, 1, \rel, 0.05,\att, 0.0001, \pan,0, \relC, 0.1, \fq, 535, \cutoff, 0.025]);
 Ndef(\basss).play;
 ~k.play
 
@@ -156,15 +156,14 @@ Synth.new("snare", [\amp, 0.5, \rel, 04.0251,\att, 0.001, \pan,0, \relC, 6, \fq,
 Synth.new("oldsnare", [\amp, 0.51, \rel, 01.025, \att, 0.001, \pan,0, \relC, 3, \fq, 405, \hifreq, 2000,  \noiseDecay, 0.01]);
 
 
-
 // Organismes cheuloux
 
 g=[]; e=[]; // < METS ça / ! ! ! \
-g = g.add(Synth(\autoglob ,[\argA,10.0.rand,\argB,230.rand,\argC,rrand(500,1400),\amp,0.1,\panFreq,0.05, \ampLag, 0.2]))
-g.do({arg i; i.set(\amp, 0, \ampLag, 10)})
+g = g.add(Synth(\autoglob ,[\argA,10.0.rand,\argB,230.rand,\argC,rrand(500,1400),\amp,0.05,\panFreq,0.1, \ampLag, 0.3]))
+g.do({arg i; i.set(\amp, 0.05, \ampLag, 20)})
 g.do({arg i; i.free}); g=[];
 
-e = e.add(Synth(\autoformant,[\fund,100.rand,\form,200.rand,\bw,800.rand, \amp, 0.2, \ampLag, 0.2]))
+e = e.add(Synth(\autoformant,[\fund,100.rand,\form,200.rand,\bw,800.rand, \amp, 0.0125, \ampLag, 0.2]))
 e = e.add(Synth(\autoformant,[\fund,100.rand,\form,600.rand,\bw,1800.rand, \amp, 0.05, \ampLag, 0.2]))
 e.do({arg i; i.set(\amp, 0, \ampLag, 30)})
 e.do({arg i; i.free}); e = [];
@@ -207,14 +206,16 @@ Ndef(\jiii).clear(); Ndef(\monte).play;
 (Ndef(\piji, {
 	FreqShift.ar(Ndef(\piii), LFNoise1.kr(0.0125).range(-500, 200) )
 	+ FreqShift.ar(Ndef(\jiii), LFNoise1.kr(0.0125).range(-500, 200) )
-	// * LFNoise1.kr(1).range(0.5, 1)
+	// * 0.25
+	* LFNoise1.kr(200).range(0.125, 1)
+	* 20
 }).play)
 
 Ndef(\piji).stop
 
 TempoClock.tempo = 1.125; Ndef(\monte).play
 
-Ndef(\monte, {arg amp=0.3;  LFSaw.ar(2000 * SinOsc.kr([0.0052, 0.0051], 0, 0.125, 1), 0, 0.1) + SinOsc.ar([2222, 2300], 0, 0.1) * amp })
+Ndef(\monte, {arg amp=1;  LFSaw.ar(2000 * SinOsc.kr([0.0052, 0.0051], 0, 0.125, 1), 0, 0.1) + SinOsc.ar([2222, 2300], 0, 0.1) * amp })
 Ndef(\monte).play;
 Pbindef(\s).stop; TempoClock.tempo = 1;
 Pbindef(\hot).play
@@ -228,25 +229,24 @@ Pbindef(\k, \rel, 2, \relC, 0)
 ~pstop.()
 ~pplay.(2)
 
-(Ndef(\psy, {arg amp=0.3;
-	SinOsc.ar([3000, 3070] / 3
+(Ndef(\psy, {arg amp=0.1;
+	SinOsc.ar([3000, 3070] / 4
 		* LFTri.kr(0.1, 0, 0, 1
-			// * LFSaw.kr(LFNoise0.kr(0.5).range(0.5, 0.28))
-			// + LFPulse.kr(LFNoise0.kr(0.5).range(0.5, 0.14), 1)
-			// + LFPulse.kr(LFNoise0.kr(0.125).range(0.2, 0.51), 0 , 0.5, 1)
-			* 0.5 * 2
+			* LFSaw.kr(LFNoise0.kr(01.5).range(0.5, 8))
+			+ LFPulse.kr(LFNoise0.kr(02.5).range(0.5, 4), 1)
+			+ LFPulse.kr(LFNoise0.kr(10.125).range(0.2, 10.51), 0 , 0.5, 1)
 		)
-		, [0, pi/2], 0.5) * 0.124 * amp
+		, [0, pi/2], 0.5) * 0.3 * amp
 }).play)
 
 Ndef(\psy).fadeTime=0
-Ndef(\psy).set(\amp, 0.8)
+Ndef(\psy).set(\amp, 1)
 Ndef(\psy).clear;
 
 ~nstop.();
 (Ndef(\noise, { arg amp = 0.3;
-	{WhiteNoise.ar(LFTri.kr(0.0125)) + ClipNoise.ar(LFPar.kr(0.0725)) + BrownNoise.ar(LFTri.kr(0.033)) * 0.33 }!2 * amp
-}))
+	{WhiteNoise.ar(LFTri.kr(0.0125)) + ClipNoise.ar(LFPar.kr(0.0725)) + BrownNoise.ar(LFTri.kr(0.033)) * 10}!2 * amp
+}).play)
 
 Ndef(\noise).play
 Ndef(\noise).fadeTime = 10
@@ -311,15 +311,15 @@ Ndef.clear(60)
 		LFNoise1.kr(0.04).range(110,390),
 		LFNoise1.kr( LFNoise1.kr(0.25).range(0.1,/*>*/ 0.5) ).range (-790, 2010),
 		132, 0.01)
-	// * LFPulse.ar(/*>*/LFNoise1.kr(4).range(0.1,0.8), 0, /*width*/ 0.25, 4, SinOsc.kr( LFNoise1.kr(20).range(0.5,20) ) )
+	* LFPulse.ar(/*>*/LFNoise1.kr(4).range(0.1,0.8), 0, /*width*/ 0.25, 4, SinOsc.kr( LFNoise1.kr(20).range(0.5,20) ) )
 
-	; sig = PitchShift.ar( sig, 0.2, sig * 1 + 0.25, 0.2) * 1.5
+	// ; sig = PitchShift.ar( sig, 0.2, sig * 1 + 0.25, 0.2) * 1.5
 	// ; sig = sig + Decay2.ar(sig/2, 0.01, 0.02, ClipNoise.ar(0.05)) // NOISE
 	// ; sig = RLPF.ar(sig, [270, 281], 0.5)
 }!2}).play)
 
 Ndef(\e).fadeTime=4
-Ndef(\e).stop
+Ndef(\e).stop.clear
 
 // Nid de bébés formants
 Ndef(\ee, { FreqShift.ar( Ndef(\e), -200 ) * LFSaw.ar(110,0, 0.5) * LFPulse.ar(90) }).play

@@ -1,0 +1,3271 @@
+[33mcommit 1456103e062b7c31c2b0aa36cbf3ac75766ff900[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: pierrepierrepierre <pierre.signolat@gmail.com>
+Date:   Sun Dec 3 13:49:22 2017 +0000
+
+    After Parva
+
+[1mdiff --git a/bandes.scd b/bandes.scd[m
+[1mindex fff4126..e9373a4 100644[m
+[1m--- a/bandes.scd[m
+[1m+++ b/bandes.scd[m
+[36m@@ -63,4 +63,99 @@[m [mPbindef(\helico).stop.clear[m
+ Pbindef(\sur,\instrument,\playbuf,\startPos,Pstutter(24*Pwhite(20,50),Pwhite(0,1.0)),\sus,0,\att,0.1,\rel,0.5,\dur,Prand([1/4,1/3,2/4,3/4,2/3,1,4/3,5/4,6/4,7/4,7/3],inf),\attC,30,\relC,0,\amp,0.3,\rate,1).play[m
+ Pbindef(\sur,\dur,Pseq([Pgeom(0.1,1.01,300),Pseq([4],inf)],1),\sus,(Pkey(\dur)),\att,0,\rel,0,\startPos,Pstutter(Pwhite(1,8),Pwhite(0,1.0)));[m
+ Pbindef(\sur, \amp, 0.01)[m
+[31m-Pbindef(\sur).stop.clear[m
+[32m+[m[32mPbindef(\sur).stop.[m
+[32m+[m
+[32m+[m
+[32m+[m[32m////////////// NEWS ///////////////[m
+[32m+[m
+[32m+[m[32m(p = Buffer.read(s,[m
+[32m+[m	[32m"D:/Musique/Musique maison/Bandes Annonces/Elephant/elephant-seq_debut.wav"[m
+[32m+[m	[32m,action:{(">> P : Buffer"+p.bufnum+":"+ p.numFrames + "frames").postln};[m
+[32m+[m[32m); // remember to free the buffer later.[m
+[32m+[m
+[32m+[m[32mq = Buffer.read(s,[m
+[32m+[m	[32m"D:/Musique/Musique maison/Bandes Annonces/Elephant/elephant-clarke_premiere_moitie.wav"[m
+[32m+[m	[32m,action:{(">> B : Buffer"+q.bufnum+":"+ q.numFrames + "frames").postln};[m
+[32m+[m[32m); // remember to free the buffer later.[m
+[32m+[m
+[32m+[m[32mr = Buffer.read(s,[m
+[32m+[m	[32m"D:/Musique/Musique maison/Bandes Annonces/Elephant/behind-scenes-of-elephant_doc.wav"[m
+[32m+[m	[32m,action:{(">> R : Buffer"+r.bufnum+":"+ r.numFrames + "frames").postln};[m
+[32m+[m[32m); // remember to free the buffer later.[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32m([m
+[32m+[m[32mSynthDef("PlayHoles", {arg out=0, buf=p.bufnum, amp=1, fpulse=0.5, rate=1, width=0.5, startPos=0, lag=0, rq=1;[m
+[32m+[m	[32mvar sig, env, pan, trig;[m
+[32m+[m	[32menv = Lag.kr(LFPulse.kr(fpulse, 0, width), lag);[m
+[32m+[m	[32msig = PlayBuf.ar(2, buf, BufRateScale.kr(buf) * rate,1,BufFrames.ir(buf)*(startPos),1);[m
+[32m+[m	[32m// sig = BLowPass.ar(sig, LFNoise0.kr(0.1, 200, 300), rq);[m
+[32m+[m	[32m// sig = BBandPass.ar(sig, LFNoise1.ar(0.1,800, 900), bw);[m
+[32m+[m	[32msig = sig * env;[m
+[32m+[m	[32mOut.ar(out, sig * amp);[m
+[32m+[m[32m}).add;[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mz.free; z = Synth("PlayHoles",[\fpulse,0.5.rand, \width,0.08.rand, \startPos, 0.9.rand, \amp, 1, \lag, 0.25,\buf,a])[m
+[32m+[m[32my.free; y = Synth("PlayHoles",[\fpulse,0.5.rand, \width,0.8.rand, \startPos, 0.9.rand, \amp, 1, \lag, 0.25,\buf,a])[m
+[32m+[m
+[32m+[m[32mz.set(\lag,0.1)[m
+[32m+[m
+[32m+[m[32mx.free; x = Synth("PlayHoles",[\fpulse,10, \width,0.07, \startPos, 0.9.rand])[m
+[32m+[m[32mx.set(\width,0.05, \fpulse,0.5, \amp, 2)[m
+[32m+[m
+[32m+[m[32m(z.free; z = {arg amp=0.051;[m
+[32m+[m	[32m(SinOsc.ar([m
+[32m+[m		[32mLFPulse.kr(LFNoise1.kr(0.2,1,1), 0, LFNoise1.kr(0.5,0.5,0.5), 100, 140), 0, amp[m
+[32m+[m[32m)!2)!3[m
+[32m+[m[32m}.play)[m
+[32m+[m[32mz.set(\amp, 0.02)[m
+[32m+[m[32mz.free[m
+[32m+[m
+[32m+[m[32m{PlayBuf.ar(2, p.bufnum,BufRateScale.kr(p.bufnum)) * PlayBuf.ar(2, q.bufnum, BufRateScale.kr(q.bufnum)) * 0.2}.play;[m
+[32m+[m
+[32m+[m[32m(y.free; y = {var ch1, ch2, ch3;[m
+[32m+[m	[32mch1 = PlayBuf.ar(2, p.bufnum, BufRateScale.kr(p.bufnum),1,BufFrames.ir(p.bufnum)*(0.5));[m
+[32m+[m	[32mch2 = DelayC.ar(ch1, 0.5, 0.5);[m
+[32m+[m	[32mch3 = DelayC.ar(ch2, 0.5,  0.5);[m
+[32m+[m	[32m// ch2 = PlayBuf.ar(2, q.bufnum, BufRateScale.kr(p.bufnum) * ch1.range(0,1.0));[m
+[32m+[m	[32m// ch3 = PlayBuf.ar(2, r.bufnum, BufRateScale.kr(r.bufnum) * ch2.range(0,1.0));[m
+[32m+[m	[32m(ch2 * ch3 * ch1) + (ch1 * ch2) * 16 + ( Dust2.ar(Pulse.kr(5, 0.5, 500, 600),0))[m
+[32m+[m[32m}.play)[m
+[32m+[m
+[32m+[m
+[32m+[m[32m([m
+[32m+[m[32mSynthDef("PlayWeird", {arg out=0, buf=p.bufnum, amp=1, fpulse=0.5, rate=1, width=0.5, startPos=0, lag=0, rq=1;[m
+[32m+[m	[32mvar sig, env, pan, trig;[m
+[32m+[m
+[32m+[m
+[32m+[m	[32msig = PlayBuf.ar(2, buf, BufRateScale.kr(buf) * rate * LFNoise0.kr([0.1,0.05], 0.1,1),1,BufFrames.ir(buf)*(startPos),1) * (1/3);[m
+[32m+[m
+[32m+[m	[32m// sig = Lag.ar(LFPulse.ar(fpulse,0,width, sig),0.2);[m
+[32m+[m
+[32m+[m	[32msig = DelayC.ar(sig, 0.5, SinOsc.kr([0.12,0.1],pi.rand,[0.1,0.05], 1) );[m
+[32m+[m
+[32m+[m	[32mOut.ar(out, sig * amp);[m
+[32m+[m[32m}).add;[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32my.free; y = Synth("PlayWeird", [\startPos, 0.5.rand, \fpulse, 0.01, \amp, 2, \buf, a, \width, [0.25,0.75]])[m
+[32m+[m[32my.set()[m
+[32m+[m
+[32m+[m
+[32m+[m[32m([m
+[32m+[m[32mSynthDef("PlayMant", {arg out=0, buf=p.bufnum, amp=1, startPos=0, rate=1,freq =440, addFreq=440, att=0.1, sus=1, rel=0.1, rq=0.1;[m
+[32m+[m	[32mvar sig, env, dur, dry;[m
+[32m+[m	[32mdur = att+rel+sus;[m
+[32m+[m	[32msig = PlayBuf.ar(2, buf, BufRateScale.kr(buf) * rate,1,BufFrames.ir(buf)*(startPos),1);[m
+[32m+[m	[32mdry = sig;[m
+[32m+[m	[32msig = BLowShelf.ar(sig,freq/2, rq);[m
+[32m+[m	[32msig = Formant.ar(freq, LFNoise1.ar(0.5,freq, (freq + addFreq) * LFNoise1.kr(0.25,1,1)), freq * LFNoise1.kr(0.5,0.5,0.5), sig);[m
+[32m+[m	[32msig = SelectXFocus.ar(LFNoise1.kr(1),[sig,dry]);[m
+[32m+[m
+[32m+[m	[32mOut.ar(out, sig * amp);[m
+[32m+[m[32m}).add;[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mx.free; x = Synth("PlayMant", [\startPos, 1.0.rand])[m
+[32m+[m[32mx.set(\amp,1, \buf, q.bufnum)[m
+\ No newline at end of file[m
+[1mdiff --git a/compresseur.scd b/compresseur.scd[m
+[1mindex 26170f6..23939b3 100644[m
+[1m--- a/compresseur.scd[m
+[1m+++ b/compresseur.scd[m
+[36m@@ -31,10 +31,10 @@[m [mx.set(\in, ~compIn.index, \thresh, 1, \slopeAbove, 1, \rel, 0.1)[m
+ x.free[m
+ [m
+ [m
+[31m-// SIDE CHAIN // à faire <<< ajouter le truc en tête du serveur pour gérer instanciation dans ordre différent[m
+[31m-y = Synth.new("compresseur",[\in, ~compIn.index, \ctrl, ~compCtrl.index])[m
+[31m-y.set(\thresh, 0.01,\amp, 1, \slopeBelow, 1, \slopeAbove,0.005, \rel, 0.05, \clampT, 0.001)[m
+[31m-y.set(\rel, 0.25, \clampT, 0.5, \amp, 1,\slopeAbove,0.1)[m
+[32m+[m[32m// SIDE CHAIN //[m
+[32m+[m[32m(y = Synth.new("compresseur",[\in, ~compIn.index, \ctrl, ~compCtrl.index,[m
+[32m+[m	[32m\thresh, 0.001,\amp, 1, \slopeBelow, 1, \slopeAbove,0.001, \rel, 0.5, \clampT, 0.002],s,\addToTail))[m
+[32m+[m[32my.set(\rel, 0.1)[m
+ y.free[m
+ [m
+ // Son pour test[m
+[36m@@ -42,4 +42,7 @@[m [mu = Synth(\droneSine,[\amp, 0.2, \freq, 190, \out, ~compIn.index])[m
+ u.set()[m
+ u.free[m
+ [m
+[32m+[m
+[32m+[m[32mPbindef(\kt,\instrument, \kick, \freqB, 100, \out, [0, ~compCtrl.index], \dur, Pseq([2,4],inf), \amp,1, \sus, 0.5, \rel, 0.1, \relC, -3).play[m
+[32m+[m
+ ~compIn.scope[m
+\ No newline at end of file[m
+[1mdiff --git a/gliss.scd b/gliss.scd[m
+[1mindex bdb460f..c9a73e9 100644[m
+[1m--- a/gliss.scd[m
+[1m+++ b/gliss.scd[m
+[36m@@ -3,9 +3,16 @@[m [ms.boot;[m
+ [m
+ [m
+ (/* VU METRE & FREQSCOPE */ w = Window.new("Levels");w.visible = true; r.free; r = ServerMeterView.new(s,w,0@0,2,2);[m
+[31m-f.free; f = FreqScope.new(800,600,0,server:s); f.window.front;)[m
+[32m+[m[32mf.free; f = FreqScope.new(400,400,0,server:s); f.window.front;)[m
+ [m
+ ([m
+[32m+[m[32m~info = {arg group; group.size.do({arg i; ~sines[i].get(\freq, {arg val; (i+"").post; val.post;}); ~sines[i].get(\amp, {arg val; " : ".post; val.round(0.001).postln})})};[m
+[32m+[m
+[32m+[m[32m~compIn = Bus.audio(s,2);[m
+[32m+[m[32m~compCtrl = Bus.audio(s,2);[m
+[32m+[m[32m~compOut = Bus.audio(s,2);[m
+[32m+[m[32m~compIn.scope;[m
+[32m+[m
+ // Sine[m
+ SynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out=0 ;[m
+ 	var freq = NamedControl.kr(\freq,440,freqLag);[m
+[36m@@ -15,11 +22,35 @@[m [mSynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out[m
+ 	Out.ar(out,Pan2.ar(SinOsc.ar(freq),pano, amp));[m
+ },[10,0,0,10,10]).add;[m
+ [m
+[31m-~info = {arg group; group.size.do({arg i; ~sines[i].get(\freq, {arg val; (i+"").post; val.post;}); ~sines[i].get(\amp, {arg val; " : ".post; val.round(0.001).postln})})}[m
+[32m+[m[32mSynthDef("sidechain",{[m
+[32m+[m	[32marg out = 0, in = ~compIn.index, ctrl = ~compCtrl.index,[m
+[32m+[m	[32mthresh = 0.5, slopeBelow = 1, slopeAbove = 0.5, clampT = 0.001, rel = 0.01, amp = 0.5,treshGate=0.01;[m
+[32m+[m	[32mvar sig, control;[m
+[32m+[m	[32msig = In.ar(in,2);[m
+[32m+[m	[32mcontrol = In.ar(ctrl, 2);[m
+[32m+[m	[32m// Side Chain[m
+[32m+[m	[32msig = Compander.ar(sig, control,thresh,slopeBelow,slopeAbove,clampT,rel);[m
+[32m+[m	[32m// Then, Gate[m
+[32m+[m	[32msig = Compander.ar(sig,sig,treshGate, 10, 1, 0.01, 0.01);[m
+[32m+[m	[32mOut.ar(out, sig * amp);[m
+[32m+[m[32m}).add;[m
+ )[m
+ [m
+[32m+[m[32m// SIDECHAIN TEST //[m
+[32m+[m[32mPbindef(\test, \instrument, \kick, \dur, 4,\amp, 0.8,\rel, 0.1, \out, [0, ~compCtrl]).play[m
+[32m+[m
+[32m+[m[32m// SIDE CHAIN //[m
+[32m+[m[32m(y.free; y = Synth.new("sidechain",[\in, ~compIn.index, \ctrl, ~compCtrl.index,[m
+[32m+[m	[32m\thresh, 0.001,\amp, 1, \slopeBelow, 1, \slopeAbove,0.001, \rel, 0.4, \clampT, 0.002],s,\addToTail))[m
+[32m+[m
+[32m+[m[32my.set(\rel, 0.2)[m
+[32m+[m[32my.set(\treshGate,0.01)[m
+[32m+[m[32my.free[m
+[32m+[m
+[32m+[m
+ /* BATCH MAKE */[m
+[31m-( ~sines.do({arg i; i.free}); ~sines = 3.collect({arg i; Synth(\gliss,[[m
+[32m+[m[32m( ~sines.do({arg i; i.free}); ~sines = 6.collect({arg i; Synth(\gliss,[[m
+[32m+[m	[32m\out, ~compIn.index,[m
+ 	\freq,rrand(2060,5500).postln[m
+ 	,\freqLag,0.025[m
+ 	,\panLag,20[m
+[36m@@ -31,56 +62,53 @@[m [mSynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out[m
+ /* BATCH CONTROL -- Entrée */[m
+ ( ~sines[m
+ .do({ arg i; i.set(\dum,0[m
+[31m-	,\freq,exprand(140,620.0)[m
+[32m+[m	[32m,\freq,exprand(100,520.0)[m
+ 	,\freqLag,0.05[m
+ 	,\pan,1.0.bilinrand[m
+ 	,\panMod,0[m
+[31m-	,\amp,0.05[m
+[32m+[m	[32m,\amp,0.015[m
+ 	,\ampLag,0.1[m
+ )});)[m
+ [m
+ /* CONTROL AU HASARD -- Panoramique modulation */[m
+ ~sines[~sines.size.rand.post].set(\pan, 0, \panMod, 1.0.rand, \panFreq, 0.5.rand.postln)[m
+ [m
+[31m-/* CONTROL au HASARD -- Freqs */[m
+[31m-~sines[~sines.size.rand.post].set(\freq, exprand(460, 1210), \freqLag, 350, \amp, 0.025, \ampLag, 0.01)[m
+[31m-[m
+ /* ADD */[m
+[31m-~sines = ~sines.addAll(Synth(\gliss, [\amp, 0.001,\freq, 1480.rand + 10.0.rand]))[m
+[32m+[m[32m~sines = ~sines.addAll(Synth(\gliss, [\out, ~compIn.index, \amp, 0.0, \freq, 73 + 10.rand], ))[m
+ [m
+  /*CONTROL PRECIS */[m
+ ~info.value(~sines)[m
+ [m
+[31m-(~sines[3[m
+[32m+[m[32m(~sines[8[m
+ ].set([m
+[31m-	\freq,402 + 30.0.rand[m
+[31m-	,\freqLag, 100[m
+[31m-	,\amp, 0.025[m
+[31m-	,\ampLag, 500[m
+[32m+[m	[32m\freq,86 + 3.0.rand[m
+[32m+[m	[32m,\freqLag, 500[m
+[32m+[m	[32m// ,\amp, 0.01[m
+[32m+[m	[32m// ,\ampLag, 500[m
+ ))[m
+ [m
+ /* BATCH CONTROL -- Freqs */[m
+ ( ~sines[m
+ .do({ arg i; i.set([m
+[31m-	\freq,exprand(4000,16020.0)[m
+[31m-	,\freqLag,400[m
+[31m-	// ,\amp, 0[m
+[31m-	// ,\ampLag,10[m
+[32m+[m	[32m// \freq,exprand(60,5020.0)[m
+[32m+[m	[32m// ,\freqLag,600[m
+[32m+[m	[32m\amp, 0.0[m
+[32m+[m	[32m,\ampLag,100[m
+ 	// \out, ~compIn.index[m
+ )});)[m
+ [m
+ /* LOOP CONTROL -- Freqs */[m
+ (r.free; r = Routine({ loop {~sines.do({arg i; i.post; i.set( // Module lentement[m
+[31m-	\freq, exprand(160,1690).postln[m
+[31m-	,\freqLag, 1000[m
+[31m-	, \amp, 0.025[m
+[31m-	, \ampLag,1000.0.rand[m
+[31m-	)}); 1000[m
+[32m+[m	[32m\freq, exprand(80,1290).postln[m
+[32m+[m	[32m,\freqLag, 500[m
+[32m+[m	[32m// , \amp, 0.0[m
+[32m+[m	[32m// , \ampLag,1500.0.rand[m
+[32m+[m	[32m)}); 500[m
+ 		.wait;}[m
+ }).play)[m
+ r.stop[m
+ [m
+[31m-~sines.do({arg item; item.set(\amp,0); item.free})[m
+[32m+[m[32m~sines.do({arg item; item.set(\amp,0, \ampLag, 10.rand); wait.10; item.free})[m
+ [m
+ ~sines.do({arg i; i.set(\ampLag, rrand(100,630), \amp, 0.01)})[m
+ (s.free; s = Routine({ loop{ ~sines.scramble.do({arg i; i.set(\amp, [0.1,0].choose); 0.25.wait}); 1.wait }}).play )[m
+[1mdiff --git a/new-patterns.scd b/new-patterns.scd[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f69eb52[m
+[1m--- /dev/null[m
+[1m+++ b/new-patterns.scd[m
+[36m@@ -0,0 +1,74 @@[m
+[32m+[m[32m([m
+[32m+[m[32mPbindef(\dubbysnare,\instrument,\snare,\dur,4,\amp, 0.5, \noiseRelC, Pwhite(-3,-6),\noiseRel,0.2,\fq,Pwhite(400,410.0),\hifreq,Pwhite(3050,3020), \noiseDecay, 0.005).play(quant:[4,3]);[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \instrument,\kick,\amp,1,\freqA,Pwhite(2540,2550), \freqAC,-8,\freqBC,-3, \freqC,Pwhite(42,44.0), \freqB,Pwhite(55.0,58),\dur,~pat,\rel, 0.2, \relC,-16).play(quant:[4,0]);[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\vent, \instrument,\noise,\dur, ~pat,\sus, 0.000,\attSweepC, 20,\bw,Pwhite(0.1,0.005),\amp,0.25, \relC,-20).play(quant:[4,0]);[m
+[32m+[m
+[32m+[m[32mPbindef(\vent2, \instrument,\noise,\dur,~pat,\sus,0,\rel,0.025,\att,0,\bw,0.002,\amp,0.15, \pan, Pwhite(-1.0,1)).play(quant:[4,0];);[m
+[32m+[m
+[32m+[m[32mPbindef(\vent4, \instrument, \formant, \dur,Pseq([3/4, 1/4, 1, 1/4],inf), \sus, 0.1, \rel, 0.01, \att,0.001, \lenmul,Pwhite(0.05, 0.5), \freq,[890, 650], \addFreq, [300, 800],\panrand, 0).play;[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat).stop[m
+[32m+[m[32mPbindef(\heartbeat).collect({|e| ~lastKick = e;}).play(quant:[8,0,0.1])[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\vent2, \freqA, 180, \freqB, 800, \sus, 0.1, \attSweep, 0.001, \relSweep, Pwhite(0.5,1.05), \bw, 0.1, \att, 0, \rel, 0.001, \stretch, Pseq([Pseq([1],Prand([4, 6, 8])),0.5],inf), \instrument, \bloc, \amp, 0.05).clear[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin,\instrument,\blip,\dur,Prand([1/6,1/8,1/10],inf),\att,0.001,\rel,Pwhite(0.02,0.005),\sus,Pkey(\dur) * Pexprand(0.05, 0.1),\freq,Pstutter(Pexprand(500,260),Pwhite([400,600,2000],[1800,1000,4000])),\amp,0.07, \pan, Pwhite(-0.5,0.5)).play(quant:[1,0])[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pseq([Pseq([1/4],4),1, Pseq([1/8],16), ~pat])).play;[m
+[32m+[m[32mPbindef(\wouin, \dur, Pseq([Pseq([1/4],8), Pseq([1/8],16), Prand([1/6, 1/8, 1/10],inf)]));[m
+[32m+[m[32mPbindef(\vent, \dur, ~pat);[m
+[32m+[m[32mPbindef(\vent2, \dur, ~pat).play;[m
+[32m+[m[32mPbindef(\vent4, \dur, ~pat).play;[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pseq([1/6, 7/6, 1/2, 1/2],inf)).play(quant:4)[m
+[32m+[m
+[32m+[m[32mPbindef(\basse, \instrument, \bass, \dur, Pseq([1/6, 1/3, 1,1/6, 1/3],inf), \freq,Pseq([84, 90, 90, 75, 128],inf), \att, 0.001, \rel, Pkey(\dur) * 0.2, \amp, 0.5, \sus, Pkey(\dur) * 0.2).play(quant:4)[m
+[32m+[m[32mPbindef(\basse, \rq, 0.05)[m
+[32m+[m
+[32m+[m[32mScale.directory[m
+[32m+[m
+[32m+[m[32mPbindef(\ronde, \instrument, \formant, \rel, 0.01, \att, 0.01, \sus,0.2, \lenmul, 20, \addFreq, 800, \freq,  Pseq([Pseq([80], 2), 80 * Prand([1,1.375,1.125, \rest],3) ],inf).trace,\nharm, 3, \amp, 0.5, \dur, Pseq([Pseq([1/3],inf)])).play[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin, \dur, Pseq([ Pseq([1], 2), Pfuncn({~lastKick[\dur]},1), Pseq([1/2]) ],inf).trace)[m
+[32m+[m
+[32m+[m[32m~pat.value[m
+[32m+[m
+[32m+[m[32m~pat = Pseq([(1/6),(1/4),(2/6),Prand([1/4, 2.25, 1.25])],inf)[m
+[32m+[m[32m~pat = Pseq([Pseq([1/8],8), Pseq([1/6, 1/8],6), ~pat],inf)[m
+[32m+[m[32m~pat = Pseq([Prand([Pseq([4]), Pseq([1/7],7)]), ~pat])[m
+[32m+[m[32m~pat = Prand([Pseq([1/4],Prand([4,8,12])), Pseq([1/2],Prand([2,4])), Pseq([1],Prand([2,1])), Pseq([1/8],Prand([8, 12]))],inf)[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \dur, ~pat)[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pseq([Pseq([1/8],8),1, 1/8, 1/8, ~pat]));[m
+[32m+[m[32mPbindef(\vent, \dur, Pseq([Pseq([1/4],4), 2, Pseq([1/8],8)],inf));[m
+[32m+[m[32mPbindef(\wouin, \dur, Pseq([Pseq([1]), Prand([1/6, 1/8, 1/10],inf)]))[m
+[32m+[m[32mPbindef(\vent4, \dur, Pseq([Pseq([1/3],6), 1/6],inf))[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pseq([1, Pseq([(1/6),(1/4),(2/6),(1/4)],inf)]));[m
+[32m+[m[32mPbindef(\vent, \dur, Pseq([Pseq([1]), Pseq([1/4],2), Pseq([1/8],inf)]));[m
+[32m+[m[32mPbindef(\dubbysnare, \amp, Pseq([Pseq([0.2],8), Pseq([0.5],inf)]), \dur, Pseq([Pseq([1/8],8), Pseq([4],inf)] ) );[m
+[32m+[m
+[32m+[m[32m([m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pseq([Pseq([1/8], 8), Pseq([1],4), Pseq([(1/6),(1/4),(2/6),(1/4)],inf)]));[m
+[32m+[m[32mPbindef(\vent, \dur, Pseq([1, Pseq([1/12], 12), Pseq([1/8],inf)]));[m
+[32m+[m[32mPbindef(\vent2, \dur, Pseq([Pseq([2],2), Pseq([1/6], 12), Pseq([(1/6),(1/4),(2/6),(1/4)],inf)]));[m
+[32m+[m[32mPbindef(\dubbysnare, \dur, Pseq([ Pseq([1/8,1/4, 2.125]), Pseq([4],inf)]))[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pseq([Pseq([1],2),  Pseq([(1/6),(1/4),(2/6),(1/4)],1), Pseq([1/7],7), Pseq([(1/6),(1/4),(2/6),(1/4)],inf)]));[m
+[32m+[m[32mPbindef(\wouin, \dur, Pseq([Pseq([1/12],12), Pseq([1/4],4), Prand([1/6,1/8,1/10],inf)]))[m
+[32m+[m
+[32m+[m[32m[1/12, 1/6, 1/8, 2/12,].sum[m
+[32m+[m
+[32m+[m[32mPbindef(\vent, \dur, 1/10)[m
+[32m+[m
+[32m+[m[32mPbindef(\vent2, \dur, 1/10)[m
+\ No newline at end of file[m
+[1mdiff --git a/patterns.scd b/patterns.scd[m
+[1mindex 9af5ea9..8cd1ee7 100644[m
+[1m--- a/patterns.scd[m
+[1m+++ b/patterns.scd[m
+[36m@@ -4,13 +4,16 @@[m [mServerBoot.removeAll;[m
+ ServerTree.removeAll;[m
+ ServerQuit.removeAll;[m
+ [m
+[31m-(/* VU METRE & FREQSCOPE */ w.free; w = Window.new("Levels");w.visible = true; r.free; r = ServerMeterView.new(s,w,0@0,2,2);[m
+[32m+[m[32m(/* VU METRE & FREQSCOPE */ w.free; w = Window.new("Levels",Rect(0,Window.screenBounds.height-350,200,300));w.visible = true; r.free; r = ServerMeterView.new(s,w,0@0,2,2);[m
+ f.free; f = FreqScope.new(300,300,0,server:s); f.window.front;)[m
+ [m
+ ([m
+[32m+[m[32m~pat =  Pseq([(1/6),(1/4),(2/6),(1/4)],inf);[m
+[32m+[m[32m~pat2 =  {arg repeat=inf; Pseq([(1/6),(1/4),1/2,(2/6),(1/4)],repeat);};[m
+[32m+[m
+ ~onBeat = {arg d;  TempoClock.default.nextBar - TempoClock.default.beats == d};[m
+ [m
+[31m-~noKick = {arg t; (((~lastKickEvent[\amp] < 0.1) && (~lastKickEvent[\dur] >= (t/2))) || (~lastKickEvent[\dur] >= t))};[m
+[32m+[m[32m~noKick = {arg t; (((~lastKick[\amp] < 0.1) && (~lastKick[\dur] >= (t/2))) || (~lastKick[\dur] >= t))};[m
+ [m
+ // Sine[m
+ SynthDef("sine",{arg freq=400,amp=0.35,pan=0,att=0.001,rel=0.005,phase=0,sus=0,out=0;[m
+[36m@@ -34,15 +37,16 @@[m [mSynthDef("snare", {arg out=0,amp=1,fq=320, hifreq=1020, noiseDecay=0.002,pan=0,[m
+ 	var sig, sin, env, noise, noiseEnv,harms, noiseAmp;[m
+ 	noiseAmp = amp/1.5;[m
+ 	env = Env([0,0,1,0.5,0],[sinDel,att,dec,rel],[0,attC,decC,relC]).kr();[m
+[31m-	noiseEnv = Env([0,0,1,0],[noiseDel, noiseAtt,noiseRel],[0,noiseAttC,noiseRelC]).kr();[m
+[32m+[m	[32mnoiseEnv = Env([0,0,1,0],[noiseDel, noiseAtt,noiseRel],[0,noiseAttC,noiseRelC]).kr(2);[m
+ 	harms = [0.9,1,1.1];[m
+ 	sin = Mix.fill(harms.size, {arg i; LFSaw.ar(fq*harms[i],pi/2,1/((i*0.5)+1.5));});[m
+ 	sin = sin * env * amp;[m
+[31m-	noise = Mix.ar([ClipNoise.ar(0.2), Dust2.ar(fq*50,0)]);[m
+[32m+[m	[32mnoise = Mix.ar([ClipNoise.ar(0.3), Dust2.ar(fq*50,0)]);[m
+ 	noise = Ringz.ar(noise, [fq, hifreq], noiseDecay);[m
+ 	noise = noise * noiseEnv * noiseAmp;[m
+ 	sig = Mix.new([sin,noise]);[m
+[31m-	Out.ar(out,Pan2.ar(sig,pan));[m
+[32m+[m	[32msig = Pan2.ar(sig, pan);[m
+[32m+[m	[32mOut.ar(out,sig);[m
+ 	DetectSilence.ar(sig, 0.00001, crash, 2);[m
+ }).add;[m
+ [m
+[36m@@ -52,7 +56,7 @@[m [mSynthDef("noise", {arg out=0,bw=1.5, amp=1, pan=0,[m
+ 	freqA=30000, freqB=80, freqC=3500, attSweep=0.1, relSweep=0.15, attSweepC=0, relSweepC=0;[m
+ 	var sig, env, sweep;[m
+ 	env = Env([0,1,1,0],[att,sus,rel],[attC,0,relC]).kr(2);[m
+[31m-	sweep = Env([freqA, freqB, freqC], [attSweep, relSweep], [attSweepC,relSweepC]).kr();[m
+[32m+[m	[32msweep = Env([freqA, freqB, freqC], [attSweep, relSweep], [attSweepC,relSweepC]).kr(2);[m
+ 	sig = BBandPass.ar(PinkNoise.ar(),sweep,bw * env,1/bw);[m
+ 	Out.ar(out,Pan2.ar(sig * env,pan, amp));[m
+ }).add;[m
+[36m@@ -69,7 +73,7 @@[m [mSynthDef("noiseUp",[m
+ 	var sig, env;[m
+ 	env = XLine.kr(0.0001, amp, sus, 1,0,2);[m
+ 	sig = PinkNoise.ar({LFNoise1.kr(panFreq,panMod,0.5)}!2);[m
+[31m-	Out.ar(out, sig * env);[m
+[32m+[m	[32mOut.ar(out, Pan2.ar(sig * env));[m
+ }).add;[m
+ [m
+ SynthDef("clap",{[m
+[36m@@ -94,11 +98,11 @@[m [mSynthDef("blip",{arg out=0,freq=60,nharm=3,amp=0.5,pan=0,att=0.003,rel=0.002,pha[m
+ 	Out.ar(out,Pan2.ar(Blip.ar(freq,nharm) * env,pan, amp));[m
+ }).add;[m
+ [m
+[31m-SynthDef("kick", {arg out=0,amp=0.5,pan=0,att=0.02,rel=0.7,attC=1, relC=(-12),nharm=2,[m
+[31m-	freqA=800,freqB=90,freqC=60,freqADur=0.02,freqBDur=0.5,freqAC=(-6),freqBC=(-3);[m
+[31m-	var env = Env([0,1,0],[att,rel],[attC,relC]).ar(2);[m
+[31m-	var sweep = Env([freqA,freqB,freqC],[freqADur,freqBDur],[freqAC,freqBC]).ar;[m
+[31m-	var sig = Mix.fill(2, {arg i; Blip.ar(sweep * (1/(i+1)),nharm,(1/(i+1)))});[m
+[32m+[m[32mSynthDef("kick", {arg out=0,amp=0.5,pan=0,att=0.02,rel=0.1, sus=0,attC=6, relC=6,[m
+[32m+[m	[32mfreqA=2800,freqB=120,freqC=35,freqAC=(0),freqBC=(-8);[m
+[32m+[m	[32mvar env = Env([0,1,1,0],[att,sus,rel],[attC,0,relC]).ar(2);[m
+[32m+[m	[32mvar sweep = Env([freqA,freqB,freqB,freqC],[att,sus,rel],[freqAC,0,freqBC]).ar;[m
+[32m+[m	[32mvar sig = Mix.fill(4, {arg i; LFPar.ar(sweep * ( 1 + (i*0.12)), pi*(i*0.66),(1/(i+1.25)))});[m
+ 	sig = sig * env * amp;[m
+ 	Out.ar(out,Pan2.ar(sig,pan));[m
+ }).add;[m
+[36m@@ -134,6 +138,48 @@[m [mSynthDef("snaredel", {[m
+ [m
+ }).add;[m
+ [m
+[32m+[m[32mSynthDef("bloc", { arg out=0, freq=880, amp=0.5, att=0.01, sus=0, rel=0.1, pan=0, lpf = 600;[m
+[32m+[m	[32mvar sig, env;[m
+[32m+[m	[32menv = Env([0,1,1,0], [att, sus, rel], [3,0,-3]).kr(2);[m
+[32m+[m	[32msig = Mix.ar([[m
+[32m+[m		[32mLFPulse.ar(LFNoise1.ar(freq,freq/2,freq), pi/3, 0.5,0.5,-0.25),[m
+[32m+[m		[32mSinOscFB.ar(freq,LFNoise1.kr(150,0.5,1), 0.3),[m
+[32m+[m		[32mSinOscFB.ar(freq/3,LFNoise1.kr(50,0.5,1), 0.3),[m
+[32m+[m	[32m]);[m
+[32m+[m	[32m// sig = BLowPass4.ar(sig, lpf, 0.25);[m
+[32m+[m	[32msig = BHiShelf.ar(sig, freq, 1, 3);[m
+[32m+[m	[32msig = Pan2.ar(sig, pan, env * amp);[m
+[32m+[m	[32mOut.ar(out, sig);[m
+[32m+[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32mSynthDef("spacy", {arg out=0, freq=880, amp=0.5, att=0.01, sus=0, rel=0.1, pan=0, fm=1;[m
+[32m+[m	[32mvar sig, env, len, mods, nharms;[m
+[32m+[m	[32mnharms = 6;[m
+[32m+[m	[32mlen = att+sus+rel;[m
+[32m+[m	[32menv = Env([0,1,1,0], [att, sus, rel], [3,0,-3]).kr(2);[m
+[32m+[m
+[32m+[m	[32mmods = Array.fill(nharms, {arg i;[m
+[32m+[m		[32mSinOsc.kr((i/2) + 1, pi*(i+1), freq/2 , freq)[m
+[32m+[m	[32m});[m
+[32m+[m
+[32m+[m	[32msig = DynKlank.ar(`[ mods, nil, 1!(nharms)],  Impulse.ar(0.01) , 1,0,len*4) / nharms;[m
+[32m+[m
+[32m+[m	[32msig = Pan2.ar(sig, pan, amp * env);[m
+[32m+[m	[32mOut.ar(out, sig);[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32mSynthDef("bass", {[m
+[32m+[m	[32marg out=0, freq=75, amp=0.5, att=0.1, rel=0.1, sus=0.1, attC=0, relC=0, pan=0, rq=1;[m
+[32m+[m	[32mvar sig, env;[m
+[32m+[m
+[32m+[m	[32menv = Env([0,1,1,0], [att,sus,rel], [attC, 0, relC]).kr(2);[m
+[32m+[m
+[32m+[m	[32msig = LFCub.ar(LFSaw.ar(freq, 0, freq/2, freq*2),2, LFPar.ar(freq/2));[m
+[32m+[m	[32msig = RLPF.ar(sig, freq, rq);[m
+[32m+[m	[32msig = Pan2.ar(sig, pan, amp * env);[m
+[32m+[m	[32mOut.ar(out, sig);[m
+[32m+[m[32m}).add;[m
+ [m
+ SynthDef("formant", { arg out=0,freq=60,addFreq=700,amp=0.5,[m
+ 	att=0.1,rel=0.1,sus=0,attC=0,relC=0,[m
+[36m@@ -221,6 +267,7 @@[m [mx = x.add(Synth.new(\autoglob,[\argA,6,\argB,12,\amp,0.8,\panFreq,1]))[m
+ x[0].free[m
+ Synth.new(\blip);[m
+ Pbindef(\hptest, \instrument, \kick, \dur, 2, \amp, 0.5).play[m
+[32m+[m[32mSynth(\bloc,[\freq, 120])[m
+ [m
+ // PLAYING[m
+ TempoClock.tempo = 60/ 60[m
+[36m@@ -228,37 +275,27 @@[m [mTempoClock.schedAbs(TempoClock, TempoClock.nextBar, {TempoClock.beatsPerBar_(4)}[m
+ [m
+ [m
+ // APRES SINES //[m
+[31m-// Lance les sines immobiles[m
+[31m-// ..[m
+[31m-// Démarre DUBBYSNARE (dur:2)[m
+[31m-// .....[m
+[31m-// Lance un PLAYBUF[m
+[31m-// Démarre l'HELICO de bande puis le VENT[m
+[31m-// ..[m
+[31m-// Fait bouger doucement 2,3 SINES[m
+[31m-// Fait bouger toutes les SINES vers le haut[m
+[31m-// Démarre le HEARTBEAT et le WOUIN[m
+[31m-// Augmente la variation de DUBBYSNARE et ajoute lui un coup[m
+[31m-// Divise DUBBYSNARE et mets le tempo à 0.05[m
+[32m+[m
+[32m+[m
+ [m
+ // SOUNDCHECK[m
+ /* Snare Level */[m
+[31m-Pbindef(\snareChk,\instrument,\snare,\dur,Prand([1/2],inf),\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.123,\fq,Pwhite(500,510.0),\hifreq,Pwhite(3150,3220)).play(quant:[4,3])[m
+[32m+[m[32mPbindef(\snareChk,\instrument,\snare,\dur,Prand([2,Pseq([1,3])],inf),\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.2,\fq,Pwhite(400,410.0),\hifreq,Pwhite(3050,3020)).play(quant:[4,0.25])[m
+ Pbindef(\snareChk).stop[m
+ [m
+ /* Snare Freqs */[m
+[31m-Pbindef(\snareChk,\fq,Pstutter(1,Pseries(280, 1)).trace)[m
+[32m+[m[32mPbindef(\snareChk,\fq,Pstutter(1,Pseries(480, 1)).trace)[m
+ [m
+ /* Kick level */[m
+[31m-Pbindef(\kickChk, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Prand([(1/6),(1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20).play(quant:[4,0])[m
+[31m-Pbindef(\kickChk, \dur, Prand([1/4, 1/2, 1/8],inf))[m
+[32m+[m[32mPbindef(\kickChk, \instrument,\kick,\amp,0.5,\freqA,Pwhite(2540,2550), \freqAC,-4.85,\freqBC,-8, \freqC,Pwhite(42,44.0),	\freqB,Pwhite(75.0,78),\rel, 0.05, \attC,0, \relC,6, \sus, 0, \out, [0,~compCtrl], \dur, 4).play[m
+ [m
+ /* Kick Freqs */[m
+[31m-Pbindef(\kickChk, \instrument,\kick,\freqA,Pwhite(2540,2550),\freqC,Pwhite(102,104.0),\freqB,Pstutter(1,Pseries(60, 1)).trace).play[m
+[31m-Pbindef(\kickChk, \freqB, \freqC, Pstutter(3,Pseries(50, 1)).trace)[m
+[32m+[m[32mPbindef(\kickChk, \instrument,\kick,\freqB,Pstutter(1,Pseries(5,1)).trace).play[m
+[32m+[m[32mPbindef(\kickChk, \freqC, Pstutter(2,Pseries(30, 1)).trace)[m
+[32m+[m[32mPbindef(\kickChk,  \freqB, 85, \freqC, 40, \freqAC, -6, \freqBC, 3, \rel, 0.05)[m
+ [m
+ /* Bass */[m
+[31m-Pbindef(\baaas, \instrument, \blip, \sus, 1, \freq, (Pwhite(40,45!3)+33).trace, \dur, 4, \amp, 0.2).play(quant:[4,3])[m
+[32m+[m[32mPbindef(\baaas, \instrument, \blip, \sus, 1, \freq, (Pwhite(40,45!3)-10).trace, \dur, 4, \amp, 0.2).play(quant:[4,3])[m
+ [m
+ [m
+ // PUMP[m
+[36m@@ -278,51 +315,110 @@[m [mPbindef(\snark, \out, ~compIn.index)[m
+ ~beatseq = [1/6,1/4,2/6,1/4][m
+ [m
+ // Intro[m
+[31m-Pbindef(\intro, \instrument, \sine, \freq, Pexprand(180, 220), \amp, Pwhite(0.005,0.005), \pan, Pwhite(-0.5, 0.5), \dur, Pwhite(0.5,1.5) * Pwhite(0.95, 1.05) * 2).play[m
+[32m+[m[32mPbindef(\intro, \instrument, \sine, \freq, Pexprand(180, 220), \amp, Pwhite(0.005,0.005), \pan, Pwhite(-0.5, 0.5), \dur, 1/6).play[m
+ Pbindef(\intro, \stretch, Pseq([1,0.5, 0.2, 0.6, 4, 6],inf))[m
+ Pbindef(\intro).stop.clear[m
+ [m
+[31m-Pbindef(\introb, \instrument, \glob, \sus, Pwhite(0,0.25), \rel, Pwhite(0.01, 0.05), \dur, 2 + Pwhite(-0.05,0.05)).play[m
+[32m+[m[32mPbindef(\introb, \instrument, \glob, \sus, Pwhite(0,0.25), \rel, Pwhite(0.01, 0.05), \dur, 1/2 + Pwhite(-0.05,0.05)).play[m
+ Pbindef(\introb, \dur, 0.1)[m
+ Pbindef(\introb).stop.clear[m
+ [m
+[31m-Synth([\noiseDwn, \noiseUp].choose, [\sus, 1.0.rand, \rel, 2.rand, \amp, 0.008])[m
+[32m+[m[32mSynth([\noiseDwn, \noiseUp].choose, [\sus, 1.0.rand, \rel, 2.rand, \amp, 0.01])[m
+ Synth(\sine, [\freq, 600.rand, \amp, 0.05.rand, \pan, rrand(-1, 1.0)])[m
+ [m
+[32m+[m[32mPbindef(\kick).stop;[m
+[32m+[m[32mPbindef(\taktak, \instrument, \sine, \freq, 110,\amp, 0.2, \dur, Pseq([1],inf)).play(quant:4);[m
+[32m+[m
+[32m+[m
+ Pdef.removeAll[m
+[32m+[m[32mTempoClock.tempo = 1[m
+[32m+[m
+[32m+[m
+ //// PARTY 1[m
+ [m
+[31m-Pbindef(\dubbysnare,\instrument,\snare,\dur,8,\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.4,\fq,Pwhite(300,310.0),\hifreq,Pwhite(750,720)).play(quant:[8,3])[m
+[32m+[m[32mPbindef(\dubbysnare,\instrument,\snare,\dur,Pseq([8,10,1,6]),\amp,0.8,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.2,\fq,Pseq([ Pwhite(600,610.0, 4), Pwhite(400,410.0)]),\hifreq,Pwhite(4050,4020), \noiseDecay, 0.004, \out, 0).play(quant:[8,3])[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \instrument,\kick,\amp,0.5,\freqA,Pwhite(2540,2550), \freqAC,-4.85,\freqBC,-8, \freqC,Pwhite(42,44.0),	\freqB,Pwhite(75.0,78),\rel, 0.05, \attC,0, \relC,6, \sus, Pseq([Pseq([0],19), 3,Pseq([0],inf)]), \out, [0,~compCtrl])[m
+[32m+[m
+[32m+[m[32m///// Collect Kick[m
+[32m+[m[32m(k.stop; k = Pbindef(\heartbeat, \dur, Pseq([8,4,6-0.25, Pseq([1],16), 10, Pseq([1/3],inf)])).stop.collect({|e| ~lastKick = e;}).play(quant:[8,0.25,0.1]);[m
+[32m+[m[32mPbindef(\dubbysnare, \out, Pseq([Pseq([0],3), Prand([0, [0, ~compCtrl]],inf)]) ,\dur, Pseq([8,4,6.25+1, Pseq([6/8,10/8],7), 8, Pseq([1],inf)]), \amp, Pseq([0.55,0.8,0.45, Pwhite(0.25,0.35)])).stop.play(quant:[8,0]))[m
+ [m
+[31m-Pbindef(\heartbeat, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Pseq([(1/6),(1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20)[m
+[31m-Pbindef(\heartbeat).collect({|e| ~lastKickEvent = e;}).play(quant:[8,0,0.1])[m
+[32m+[m[32m// Quand le kick part >>[m
+[32m+[m[32mPbindef(\dubbysnare,\noiseRelC, Pwhite(-5.0,-3), \noiseDecay, 0.002)[m
+ [m
+[31m-(Pbindef(\vent, \instrument,\noise,\dur, 0.08,\sus, 0.0001,\attSweepC, 20,\bw,Pwhite(0.1,0.5),\amp,0.25, \relC,-20).play;[m
+[32m+[m[32mk.stop;[m
+[32m+[m[32m// Side Chain //[m
+[32m+[m[32my.set(\amp, 1.5)[m
+[32m+[m[32my.set(\rel, 0.2)[m
+ [m
+[31m-Pbindef(\vent2, \instrument,\noise,\dur,0.081,\sus,0,\rel,0.025,\att,0,\bw,0.002,\amp,0.15, \pan, Pwhite(-1.0,1)).play;)[m
+[32m+[m[32mk.play[m
+[32m+[m[32m// PAN PARTY[m
+[32m+[m[32m(Pbindef(\heartbeat, \pan, Pseq([-1,0,1],inf), \dur, 1/4, \sus, 0, \out, [0, ~compCtrl]);[m
+[32m+[m[32mPbindef(\dubbysnare, \dur, 3/4 , \amp, Pwhite(0.3,0.4), \noiseDecay, 0.001, \amp, Pwhite(0.25,0.35)))[m
+ [m
+[31m-Pbindef(\wouin,\instrument,\blip,\dur,Prand([1/6,1/8,1/10],inf),\att,0.001,\rel,Pwhite(0.02,0.005),\sus,Pkey(\dur) * Pexprand(0.05, 0.1),\freq,Pstutter(Pexprand(500,260),Pwhite([400,600,2000],[800,1000,4000])),\amp,0.04, \pan, Pwhite(-0.5,0.5)).play(quant:[1,0])[m
+ [m
+[31m-Pbindef(\vent, \pan, Pwhite(-0.5,0.5));[m
+[32m+[m[32m(Pbindef(\heartbeat,\dur, Pseq([Pseq([1/6],9),4, ~pat2.(inf)]), \out, Pseq([0, [0,~compCtrl],0],inf), \sus, Pseq([Pseq([0],8),1, Pseq([0],inf)]), \pan, 0);[m
+[32m+[m[32mPbindef(\dubbysnare, \dur, Pseq([8, Pwrand([2,1],[0.9,0.1],inf)]) + Pshuf([0.125,0, -0.125],inf) , \out, 0).play(quant:[4,3]))[m
+ [m
+[31m-Pbindef(\dubbysnare, \dur, Pwrand([2,1],[0.9,0.1],inf))[m
+ [m
+[31m------ play[m
+ [m
+[31m-Pbindef(\dubbysnare, \noiseRelC, Pwhite(0,-7))[m
+[32m+[m[32m// PANNE DE KICK ?[m
+[32m+[m[32mk.stop; k = Pbindef(\heartbeat).stop.collect({|e| ~lastKick = e;}).play(quant:[8,0.25,0.1]);[m
+[32m+[m[32mk.stop[m
+[32m+[m[32mPbindef(\heartbeat, \amp, 0.5, \out, [0, ~compCtrl]);[m
+[32m+[m[32mPbindef(\heartbeat, \pan,0)[m
+ [m
+[31m-Pbindef(\wouin,\dur,Pfunc{if (~noKick.(1/2)) { ~lastKickEvent[\dur] / rrand(3,6) } {[1/6,1/8,1/5,1/10].choose} })[m
+ [m
+[31m-// Pbindef(\wouin,\sus, Pwhite(0.01,0.5) * Pkey(\dur))[m
+[32m+[m[32m(Pbindef(\vent, \instrument,\noise,\dur, 0.08,\sus, 0.000,\attSweepC, 20,\bw,Pwhite(0.1,0.005),\amp,Pseq([Pseq((1..250))*0.0005, Pseq([0.125],inf)]), \relC,-20).play(quant:8);[m
+ [m
+[31m-/*Pbindef(\heartbeat, \amp, Pseq([1, Prand([1, 0])],inf))*/[m
+[32m+[m[32mPbindef(\vent2, \instrument,\noise,\dur,0.081,\sus,0,\rel,0.025,\att,0,\bw,0.002,\amp,Pseq([Pseq((1..150))*0.0005, Pseq([0.075],inf)])).play(quant:8);)[m
+ [m
+[32m+[m[32mPbindef(\vent2, \pan, Pwhite(-1.0,1));[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin,\instrument,\blip,\dur,Pseq([ Prand([1/6,1/8,1/10],inf), 1/4, 1/3, Pseq([1/12],18), 1/3, 1/4],inf),\att,0.001,\rel,Pwhite(0.02,0.005),\sus,Pkey(\dur) * Pexprand(0.05, 0.1),\freq,Pstutter(Pexprand(500,260),Pwhite([400,600,2000],[800,1000,4000])),\amp,0.02, \pan, Pwhite(-0.5,0.5))[m
+[32m+[m
+[32m+[m
+[32m+[m[32m([m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pseq([ Pseq([Pseq([1/5],7), 3/5,Pseq([1/6],12)],2), ~pat]), \out,0, \amp,0.5);[m
+[32m+[m[32mPbindef(\vent2, \dur, Pseq([ Pseq([Pseq([1/5],10) + 0.001, Pseq([1/6],12) + 0.005 ], 1), Pseq([0.081],inf)]));[m
+[32m+[m[32mPbindef(\vent, \dur, Pseq([ Pseq([ Pseq([1/5],10),Pseq([1/6],6), Pseq([1/8],8) ],2), Pseq([0.08],inf)]));[m
+[32m+[m[32mPbindef(\wouin, \dur, Pfunc{~lastKick[\dur]}).play(quant:[4,0.25])[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin, \dur,Pseq([ Pseq([1/6],6), Prand([1/6,1/8,1/10],inf)]), \amp, 0.035)[m
+[32m+[m
+[32m+[m
+[32m+[m[32my.set(\amp,1.5);[m
+[32m+[m[32my.set(\amp,0.8);[m
+[32m+[m[32my.set(\rel, 0.05)[m
+[32m+[m
+[32m+[m[32m([m
+[32m+[m[32mPbindef(\vent, \dur,Pseq([Pseq([4]), Pseq([0.08],inf)]));[m
+[32m+[m[32mPbindef(\vent2, \dur,Pseq([Pseq([1/8],16), 2, Pseq([0.081],inf)]),  \rel, Pseq([Pseq([Pwhite(0.5,1,1), Pseq([0.025],7)],2), Pseq([0.025],inf)]));[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pseq([Pseq([1/6],24), ~pat ]));[m
+[32m+[m[32mPbindef(\wouin,  \dur, Pseq([ 8 , Prand([1/6,1/8,1/10],inf) ]));[m
+[32m+[m[32mPbindef(\dubbysnare, \amp, Pwhite(0.3,0.2), \dur, Pseq([Pseq([1/6],9),1/2, Pwrand([2,1],[0.9,0.1],inf)]) + Pseq([Pseq([0],24), Pshuf([0.125,0, -0.125],inf)])).stop.play(quant:[1,0])[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \out, Pwrand([ 0, [0, ~compCtrl]],[0.2,0.8],inf))[m
+[32m+[m
+[32m+[m[32m// ----- play it v v v v[m
+[32m+[m
+[32m+[m[32mPbindef(\dubbysnare, \dur, Pwrand([2, 1, 1.5, 2.5], [0.6, 0.1, 0.2,0.1],inf))[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin,\dur,Pfunc{if (~noKick.(1/2)) { ~lastKick[\dur] / rrand(3,6) } {[1/6,1/8,1/5,1/10].choose} })[m
+ [m
+ Pbindef(\vent, \sus, Pfunc{ if((~noKick.(2/6)) && (0.3.coin)){rrand(0.07,0.0002)}{0.0001}})[m
+ [m
+[31m-Pbindef(\wouin,\rel,Pfunc{if (~noKick.(1/2)) { rrand(0.1,0.3) } {rrand(0.02,0.0005)} })[m
+[32m+[m[32mPbindef(\wouin,\sus,Pfunc{if (~noKick.(1/2)) { rrand(0.2,0.5) } {rrand(0.05,0.0005)} })[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pwrand([Pseq([1/6, 1/4, 1/2, 2/6, 1/4]), ~pat],[0.9,0.1],inf), \out, [0, ~compCtrl], \pan, 0)[m
+[32m+[m
+[32m+[m[32mPbindef(\vent2, \dur,Pfunc{ ~lastKick[\dur] / 4})[m
+ [m
+[31m-Pbindef(\heartbeat, \dur, Pwrand([Pseq([1/6, 1/4, 2/6, 1/4]),1],[0.9,0.1],inf))[m
+[32m+[m[32my.set(\rel, 0.05)[m
+ [m
+ (Pbindef(\heartbeat, \dur,[m
+ 	Pseq([[m
+[36m@@ -330,10 +426,9 @@[m [mPbindef(\heartbeat, \dur, Pwrand([Pseq([1/6, 1/4, 2/6, 1/4]),1],[0.9,0.1],inf))[m
+ 		Pwrand([[m
+ 			Pseq([1/4, 2/6, 1/4]),[m
+ 			Pshuf([ Pseq([((2/6)+(1/4)) / 5],5), 1/4])][m
+[31m-		, [0.99,0.01]) // < change weights[m
+[32m+[m		[32m, [0.9,0.1]) // < change weights[m
+ 		,Pwrand([ 1/4,Pseq([1/4, 1])], [0.9,0.1])[m
+[31m-	],inf),[m
+[31m-	\amp, 0.8[m
+[32m+[m	[32m],inf)[m
+ ))[m
+ [m
+ [m
+[36m@@ -345,39 +440,66 @@[m [mPbindef(\heartbeat, \dur, Pwrand([Pseq([1/6, 1/4, 2/6, 1/4]),1],[0.9,0.1],inf))[m
+ [m
+ Pbindef(\wouin, \sus, Pfunc{ if ((~noKick.(2/6)) && (0.5.coin)) {rrand(0.051,0.35)} {rrand(0.0005,0.005)}})[m
+ [m
+[32m+[m[32mPbindef(\dubbysnare, \dur, Pfunc{ if(~noKick.(1)) {[1/8, 1/7].choose} { [1,1.5,2.5,2].choose} })[m
+[32m+[m[32mPbindef(\dubbysnare, \noiseRelC, Pfunc{ if (~noKick.(1)) {rrand(-5,-3)} { rrand( 0, 3)}})[m
+[32m+[m
+[32m+[m
+ Pbindef(\wouin, \nharm, Pfunc{ if ((~noKick.(1/2)) && (0.3.coin)) {rrand(3,16)} {2}})[m
+ [m
+[31m-Pbindef(\wouin, \rel, Pfunc{ if (~noKick.(2/6) && (0.1.coin)) {(~lastKickEvent[\dur]-0.001.rand).abs} {rrand(0.05,0.0005)}})[m
+[32m+[m[32mPbindef(\wouin, \rel, Pfunc{ if (~noKick.(2/6) && (0.1.coin)) {(~lastKick[\dur]-0.001.rand).abs} {rrand(0.05,0.0005)}})[m
+ [m
+[31m-Pbindef(\wouin, \dur, Pstutter(Pwhite(1,6),Prand([1/8,1/9,1/6,1/12],inf)))[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pshuf([Pseq([1/8],8), Pseq([1/2],3), Pseq([1/5],5), 1/2, ~pat.(4) ],inf))[m
+ [m
+[32m+[m[32mPbindef(\heartbeat, \freqB, Pseq([Pseq((55..96)), Pwhite(65,62.0)]), \dur, Pseq([Pseq([1/12],42), Pshuf([1,2,1/4],2), Pseq([1/8],4), ~pat2.(4), ~pat]))[m
+[32m+[m
+[32m+[m[32my.set(\rel, 0.03)[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin, \dur, Pstutter(Pwhite(1,6),Prand([1/8,1/9,1/6,1/12],inf)))[m
+ [m
+ [m
+[31m-Pbindef(\dubbysnare,\dur,1.6,\noiseRel,0.5, \amp, 0.3, \pan,0, \noiseDecay, Pseq([Pseries(0.002,0.01,30)],inf))[m
+[31m-Pbindef(\dubbysnare,  \hifreq, 770, \noiseDecay, 0.01)[m
+ Pbindef(\dubbysnare).stop.clear;[m
+ [m
+[31m-TempoClock.tempo = 0.05[m
+[31m-TempoClock.tempo = 2[m
+[32m+[m[32my.set(\rel, 1); TempoClock.tempo = 0.01[m
+[32m+[m[32mTempoClock.tempo = 0.[m
+ [m
+[31m-Pbindef(\wouine,\instrument,\formant,\dur,12,\sus,Pkey(\dur),\freq,Pseq([150,225,262.5,400],inf),\addFreq,Pseq([-20,105,142.5,-180],inf),\amp,Pwhite(0.05,0.15),\lenmul,Pwhite(0.8,1.5),\bwfreq,0).play[m
+[31m-Pbindef(\wouine, \freq, 60, \addFreq,-20, \lenmul,2,)[m
+[31m-Pbindef(\wouine).stop[m
+[32m+[m[32m// VAGUE manuelle[m
+[32m+[m[32mSynth.new("snare", [\amp, 0.5, \noiseRel, 5, \pan,0, \noiseRelC, 3, \fq, 405, \hifreq, rrand(3025,1200), \noiseDecay, 0.005])[m
+ [m
+[32m+[m[32mPdefAllGui.new()[m
+[32m+[m
+[32m+[m[32mTempoClock.tempo = 0.05; Pbindef(\wouin, \stretch, 0.05); Pbindef(\heartbeat, \stretch ,0.25);[m
+[32m+[m[32mTempoClock.tempo = 1; Pbindef(\wouin, \stretch,1); Pbindef(\heartbeat, \stretch, 1)[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/// ROOKIES ----------[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\vent3, \instrument, \bloc, \dur,Pn(Pshuf([1/8,1/16,1/16,1/8,1/4,1/8].sputter(0.75,8)),inf), \sus, 0.02,  \att, 0, \amp, 0.075, \freq, Pstutter(100,Pwhite(700, 2000)), \rel, 0.001).play(quant:[1,0.2])[m
+[32m+[m
+[32m+[m[32mPbindef(\vent4, \instrument, \formant, \dur,Pwhite(0.125/2, 0.125/4), \rel, 0.01, \att,0.001, \lenmul,10, \freq, Pstutter(500,Pwhite(700, 2000)), \addFreq, Pwhite(1000,900),\panrand, 0, \amp, 0.1).play[m
+[32m+[m
+[32m+[m[32mPbindef(\vent3, \stretch, Pfunc{if (~noKick.(2/6)) { 3 } { 1 } } )[m
+[32m+[m[32mPbindef(\vent3, \sus, Pfunc{if (~noKick.(1/2)) { 0.3 } { 0.02 } } )[m
+[32m+[m[32mPbindef(\vent3).stop[m
+[32m+[m[32mPbindef(\vent4, \amp, 0.005).stop[m
+[32m+[m
+[32m+[m[32mPbindef(\vent4, \stretch, Pfunc{if (~noKick.(2/6)) { 3 } { 1 } } )[m
+[32m+[m[32mPbindef(\vent4, \sus, Pfunc{if (~noKick.(1/2)) { 0.5 } { 0 } } )[m
+[32m+[m
+[32m+[m[32m/// end ROOKIES[m
+ [m
+[31m-Pbindef(\baaas, \instrument, \blip, \sus, 1, \freq, (Pwhite(40,45!3)+13), \dur, 4, \amp, 0.2).play(quant:[8,3])[m
+[31m-Pbindef(\baaas).stop[m
+ [m
+[31m-Pbindef(\dubbysnare,  \noiseRel, 0.5, \noiseRelC,rrand(-4,-12), \dur, Pfunc{ if (~onBeat.(3) && (0.5.coin)) {~lastKickEvent[\dur]} {[1,2,0.5].choose}}, \amp, Pfunc{ if (~noKick.(1/4)){0.25}{if(~onBeat.value(3)){0.25}{0}}}).play(quant:4)[m
+[32m+[m[32mPbindef(\dubbysnare, \stretch, 1, \noiseRel, 0.5, \noiseRelC,rrand(-4,-12), \dur, Pfunc{ if (~onBeat.(3) && (0.5.coin)) {~lastKick[\dur]} {[1,2,0.5].choose}}, \amp, Pfunc{ if (~noKick.(1/4)){0.2}{if(~onBeat.value(3)){0.3}{0}}}).play(quant:4)[m
+ [m
+[31m-Pbindef(\heartbeat, \amp, Pseq([1,Pwrand([1,0.5,0],[0.7,0.2,0],3)],inf))[m
+[32m+[m[32mPbindef(\heartbeat, \amp, Pseq([0.5,Pwrand([0.5,0.25,0],[0.7,0.2,0],3)],inf))[m
+ Pbindef(\heartbeat, \dur, Pwrand([1/6,1/4, Pwhite(1,4,1)],[0.85, 0.1,0.05],inf))[m
+ [m
+ Pbindef(\vent, \freq, Pstutter(Pwhite(30,200),Pexprand(6000,8000)))[m
+ Pbindef(\vent, \bw,Pwhite(0.03,3))[m
+ [m
+[31m-Pbindef(\vent, \relC,Pseq([Pgeom(-20,1.1)]),\att,Pfunc{if (~noKick.(2/6)) {rrand(0.01,0.5)} {0.001}}) // < ++ \att[m
+[31m-Pbindef(\vent2, \rel, 0.16) // < augmente et va dans l'espace[m
+[32m+[m[32mPbindef(\vent, \relC,Pseq([Pgeom(-20,1.1)]),\att,Pfunc{if (~noKick.(2/6)) {rrand(0.1,0.5)} {0.06}}) // < ++ \att[m
+[32m+[m[32mPbindef(\vent2, \rel, 0.6) // < augmente et va dans l'espace[m
+ [m
+ Pbindef(\vent).stop.clear;[m
+ Pbindef(\vent2).stop.clear;[m
+[36m@@ -388,58 +510,98 @@[m [mPbindef(\wouin).stop.clear[m
+ [m
+ Pbindef(\dubbysnare).stop;[m
+ Pbindef(\heartbeat).stop;[m
+[32m+[m[32mk.stop;[m
+ Pbindef(\baaas).stop;[m
+ Pbindef(\vent).stop;[m
+ Pbindef(\vent2).stop;[m
+[32m+[m[32mPbindef(\vent3).stop;[m
+[32m+[m[32mPbindef(\vent4).stop;[m
+ Pbindef(\wouin).stop;[m
+ Pbindef(\wouine).stop;[m
+ [m
+ Pdef.removeAll[m
+ [m
+[32m+[m[32m// AIDE MEMOIRE KICK[m
+[32m+[m[32mPbindef(\heartbeat, \instrument,\kick,\amp,0.5,\freqA,Pwhite(2540,2550), \freqAC,-4.85,\freqBC,-8, \freqC,Pwhite(42,44.0),	\freqB,Pwhite(75.0,78),\rel, 0.05, \attC,0, \relC,6, \dur, ~pat, \sus,0, \out, [0,~compCtrl])[m
+[32m+[m
+[32m+[m[32mk.stop; k = Pbindef(\heartbeat).stop.collect({|e| ~lastKick = e;}).play(quant:[8,0.25,0.1]);[m
+[32m+[m[32m////////////////////////[m
+[32m+[m
+ /////// PARTY 2 : Clubbez moi[m
+ Pbindef(\heartbeat).play[m
+ Pbindef(\heartbeat, \dur, Pwrand([ Pseq([1/6,1/4,2/6,1/4]), 1],[0.9,0.1],inf))[m
+[31m-Pbindef(\heartbeat, \dur, Pwrand([ Pstutter(Pwhite(1,4),Pseq([1/6,1/4,2/6,1/4])), 1],[0.5,0.5],inf))[m
+[31m-Pbindef(\heartbeat, \dur, Pwrand([ Pseq([1/6,1/4,2/6,1/4]), Pseq([1/5],10), 1],[0.8,0.1,0.1],inf))[m
+[31m-Pbindef(\heartbeat, \dur, Pwrand([1/5, 1/6, 1, 2],[0.5,0.1,0.1,0.1].normalizeSum,inf))[m
+[31m-Pbindef(\heartbeat, \out, [~compCtrl.index, 0])[m
+[32m+[m
+ Pbindef(\heartbeat).stop[m
+ [m
+[31m-Pbindef(\dubbysnare,\instrument,\snare,\dur,Prand([Pseq([2],6), 1,3],inf),\amp,0.23,\noiseRelC,Pwhite(-5,-8),\noiseRel,0.4).play(quant:[4,3])[m
+[31m-Pbindef(\dubbysnare, \amp,0.6 )[m
+[32m+[m[32mPbindef(\dubbysnare,\instrument,\snare,\dur,Prand([Pseq([2],6), 1,3],inf),\amp,0.3,\noiseRelC,Pwhite(-5,-3),\noiseRel,0.4).play(quant:[4,3])[m
+[32m+[m
+ [m
+ Pbindef(\clap, \instrument, \clap, \dur, Pxrand([0.5,Pshuf([0.25,0.75])],inf), \amp, 0.3, \rq, Pwhite(0.2,0.6), \rel,Pwhite(0.2,0.4), \freq,900, \stretch, 0.5).play(quant:[4,0.5])[m
+ [m
+[31m-Pbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) - Pwhite(10,20), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKickEvent[\dur] >= 1){0.25}{0}}).play[m
+[32m+[m
+[32m+[m[32mPbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) + Pwhite(10,20), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKick[\dur] >= 1){0.45}{0}}).play[m
+ Pbindef(\tremble, \amp, 0.2)[m
+ Pbindef(\tremble).stop[m
+ [m
+[31m-Pbindef(\snare, \instrument, \snaredel, \dur, Prand([Pseq([1/3],3), Pseq([1/5],5)],inf), \amp, Pfunc{ if (~lastKickEvent[\dur] >= 0.5 ) {0.05} {0}}, \deldur, 1, \delfq, 350,  \deldur, 1.5, \sus, 0.15, \delvit, 0.001, \delfq, 1, \lenmul,0.5).play(quant:4)[m
+[31m-Pbindef(\snare, \crash, 0.04) // ++ crash pour surcharger cpu :: default = 0.1[m
+[32m+[m
+[32m+[m[32mPbindef(\snare, \instrument, \snaredel, \dur, Prand([Pseq([1/3],3), Pseq([1/5],5)],inf), \amp, Pfunc{ if (~lastKick[\dur] >= 0.4 ) {0.04} {0}}, \deldur, 1, \delfq, 350,  \deldur, 1.5, \sus, 0.15, \delvit, 0.001, \delfq, 1, \lenmul,0.5).play(quant:4)[m
+[32m+[m[32mPbindef(\snare, \crash, 0.4) // ++ crash pour surcharger cpu :: default = 0.1[m
+ Pbindef(\snare).stop.clear[m
+ [m
+[32m+[m
+ (Pbindef(\snark, \instrument, \snaredel, \pan,Pwhite(-1.0,1),[m
+[31m-	\dur,Pfunc{ if(~lastKickEvent[\dur] >= 1) {rrand(0.1,3)}{0.5}},[m
+[31m-	\amp,Pfunc{ if(~lastKickEvent[\dur] >= 0.5){0.6}{0.01}},[m
+[32m+[m	[32m\dur,Pfunc{ if(~lastKick[\dur] >= 1) {rrand(0.1,3)}{0.5}},[m
+[32m+[m	[32m\amp,Pfunc{ if(~lastKick[\dur] >= 0.5){0.6}{0.01}},[m
+ 	\rel,Pwhite(0.05,1),\relC,-3, \deldur,Pwhite(0.05,0.3),\delvit,Pwhite(0.01,0.5),\delfq,Pwhite(1,30),[m
+ 	\ff,Pwrand([Pwhite(10,100,1), Pwhite(2000,5000,1)],[0.7,0.3],inf)[m
+ ).play(quant:[4,2]))[m
+[31m-Pbindef(\snark, \crash, 0.013) // ++ crash pour surcharger cpu :: default = 2[m
+[32m+[m[32mPbindef(\snark, \crash, 4) // ++ crash pour surcharger cpu :: default = 2[m
+ Pbindef(\snark).stop.clear;[m
+ [m
+ [m
+[31m-Pbindef(\roll, \instrument, \snare, \dur, Pfunc{if(~lastKickEvent[\dur] < 1) {~lastKickEvent[\dur]} {1/8}}, \noiseRelC, -12, \rel, 0.05,\att, 0.0001, \dec, 0.02, \relC, -8, \fq, [1300, 900], \hifreq, 1600, \noiseDecay, 0.05, \noiseDel, 0.01, \amp,Pfunc{ if(~lastKickEvent[\dur] >= 1) {0.05} {0.001}}).play(quant:4)[m
+[31m-Pbindef(\roll, \amp,0.1)[m
+[31m-Pbindef(\roll, \crash, 0.018) // ++ crash pour surcharger cpu :: default = 0.1[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pwrand([ Pseq([1/6,1/4,2/6,1/4]), Pseq([1/5],10), 1],[0.8,0.1,0.1],inf))[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\roll, \instrument, \snare, \dur, Pfunc{if(~lastKick[\dur] < 1) {~lastKick[\dur]} {1/8}}, \noiseRelC, -12, \rel, 0.05,\att, 0.0001, \dec, 0.02, \relC, -8, \fq, [1300, 900], \hifreq, 1600, \noiseDecay, 0.05, \noiseDel, 0.01, \amp,Pfunc{ if(~lastKick[\dur] >= 1) {0.04} {0.001}}).play(quant:4)[m
+[32m+[m[32mPbindef(\roll, \amp,0.04)[m
+[32m+[m[32mPbindef(\roll, \crash, 2) // ++ crash pour surcharger cpu :: default = 0.1[m
+ [m
+ Pbindef(\clap, \freq, Pseq([Pseries(900,1,600)],inf))[m
+ Pbindef(\clap, \dur, Pshuf([Pxrand([0.5,Pshuf([0.25,0.75])],2), Pseq([0.25],8), 1,2],inf))[m
+ Pbindef(\clap, \freq, 950)[m
+ [m
+[32m+[m[32mPbindef(\wouin,\instrument,\blip,\dur, Pfunc{ ~lastKick[\dur]} * Pwrand([0.5, 0.25, 1, 2], [0.4,0.1,0.5],inf) + Pshuf([0, -0.125,0.125]),\att,0.01,\rel,Pwhite(0.02,0.005),\sus,Pkey(\dur) * Pexprand(0.05, 0.1),\freq, 2 * [250, 502, Pseq([500, 505, 510],inf)],\amp,0.1, \pan, Pwhite(-0.5,0.5)).play(quant:[4,1.25])[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pwrand([1/5, 1/6, 1, 2],[0.5,0.1,0.1,0.1].normalizeSum,inf))[m
+[32m+[m
+[32m+[m[32m// VARIAS[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pwrand([ Pshuf([1/4],2), Pshuf([1/3],3), Pseq([1/6],6), 1/2, 1, 2], [2,0.5,1.5,0.5,0.3,0.1].normalizeSum,inf), \sus, 0)[m
+[32m+[m
+[32m+[m[32mPbindef(\clap, \dur, Pshuf([Pxrand([0.5,Pshuf([0.25,0.75])],2), Pseq([0.25],8), 1,2],inf))[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m//////////////// // ORGANISMES CHEUXLOUS[m
+[32m+[m
+[32m+[m
+[32m+[m[32mg=[]; e=[]; // < METS ça / ! ! ! \[m
+[32m+[m
+[32m+[m
+[32m+[m[32mg = g.add(Synth(\autoglob,[\argA,10.0.rand,\argB,30.rand,\argC,rrand(500,1400),\amp,0.31,\panFreq,0.05, \ampLag, 0.2]))[m
+[32m+[m[32mg.do({arg i; i.set(\amp, 0, \ampLag, 100)})[m
+[32m+[m[32mg.do({arg i; i.set(\argA, 5)})[m
+[32m+[m[32mg.do({arg i; i.free}); g=[];[m
+[32m+[m
+[32m+[m[32me = e.add(Synth(\autoformant,[\fund,100.rand,\form,600.rand,\bw,1800.rand, \amp, 0.1, \ampLag, 0.2]))[m
+[32m+[m[32me.do({arg i; i.set(\amp, 0, \ampLag, 100)})[m
+[32m+[m[32me.do({arg i; i.free}); e = [];[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPdef.removeAll;[m
+ [m
+ // STOPTOUT /[m
+ Pbindef(\dubbysnare).stop;[m
+[31m-Pbindef(\heartbeat).stop;[m
+[32m+[m[32mPbindef(\heartbeat).stop.clear;[m
+ Pbindef(\baaas).stop;[m
+ Pbindef(\vent).stop;[m
+ Pbindef(\vent2).stop;[m
+[36m@@ -451,13 +613,16 @@[m [mPbindef(\sur).stop;[m
+ Pbindef(\secondheart).stop;[m
+ Pbindef(\secondsnare).stop;[m
+ [m
+[31m-Pbindef(\tremble).stop[m
+[32m+[m[32mPbindef(\tremble).stop;[m
+ Pbindef(\snare).stop;[m
+[31m-Pbindef(\snark).stop[m
+ Pbindef(\roll).stop;[m
+ Pbindef(\clap).stop;[m
+[32m+[m[32mPbindef(\snark).stop;[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m//////////////// // BONUS TRACK[m
+ [m
+[31m-//////////////// // ORGANISMES CHEUXLOUS[m
+ Pdef.removeAll[m
+ Pbindef(\sourdkick,\instrument,\kick,\amp,0.25,\dur,Prand([1,1.5,2],inf),\attRel,600,\freqA,220,\freqAC,30).play(quant:4);[m
+ Pbindef(\sourdkick,\dur,Pwhite(1,4),\freqA,360,\freqB,100,\freqC,115,\rel,1,\relC,Pwhite(6,-12))[m
+[36m@@ -469,19 +634,14 @@[m [mPbindef(\soussnare,\noiseRelC,-30,\rel,0.75)[m
+ Pbindef(\soussnare,\noiseRelC,Pseq([Pseq([-30],Pwhite(4,14,1)),Pseq([10],Pwhite(1,4,1))],inf))[m
+ Pbindef(\soussnare).stop.clear;[m
+ [m
+[31m-g=[]; e=[]; // < METS ça / ! ! ! \[m
+[31m-Pdef.removeAll;[m
+[31m-[m
+[31m-g = g.add(Synth(\autoglob,[\argA,10.0.rand,\argB,30.rand,\argC,rrand(500,1400),\amp,0.31,\panFreq,0.05, \ampLag, 0.2]))[m
+[31m-g.do({arg i; i.set(\amp, 0, \ampLag, 100)})[m
+[31m-g.do({arg i; i.free}); g=[];[m
+ [m
+[31m-e = e.add(Synth(\autoformant,[\fund,100.rand,\form,600.rand,\bw,1800.rand, \amp, 0.1, \ampLag, 0.2]))[m
+[31m-e.do({arg i; i.set(\amp, 0, \ampLag, 510)})[m
+[31m-e.do({arg i; i.free}); e = [];[m
+[32m+[m[32mPbindef(\baaas, \instrument, \kick, \sus, 1, \freqB, (Pwhite(40,45!3)+30), \dur, 4, \amp, 0.2).play(quant:[8,3])[m
+[32m+[m[32m// OR //[m
+[32m+[m[32mPbindef(\baaas, \instrument, \blip, \sus, 1, \freq, (Pwhite(40,45!3)+10), \dur, 4, \amp, 0.2).play(quant:[8,3])[m
+[32m+[m[32mPbindef(\baaas).stop[m
+ [m
+ // BAAAASSSS[m
+[31m-Pbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.25],inf),\freqB,([50,65]+30) * Prand([1,2],inf),\rel,Pwhite(0.25,0.4),\relC,60,\freqBC,-50,\dur,Pseq([Pseq([1/4],6), 1/2, 1/4,1/2],inf),\amp,0.1).play(quant:4)[m
+[32m+[m[32mPbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.25],inf),\freqB,([50,65]+30) * Prand([1,2],inf),\rel,Pwhite(0.025,0.04),\relC,2,\freqBC,0,\dur,Pseq([Pseq([1/4],6), 1/2, 1/4,1/2],inf),\amp,0.1).play(quant:4)[m
+ Pbindef(\deep).stop[m
+ [m
+ // Noises[m
+[36m@@ -494,7 +654,7 @@[m [mPbindef(\clapo, \dur, 1/3)[m
+ Pbindef(\clapo).clear[m
+ [m
+ Pbindef(\nitrate, \instrument,\sine,\freq,Prand([\rest,[1700,7150,1800,1720,1711],[1700,1720,1760,1800,1820,1810]],inf),\amp,Pseq([0.01,0.05],inf),\att,0.001,\sus,0,\rel,Pwhite(0.1,0.03), \dur,Pseq([1/6,2/6],inf) ).play(quant:4)[m
+[31m-Pbindef(\nitrate, \amp, 0.05, \dur, 1/7)[m
+[32m+[m[32mPbindef(\nitrate, \amp, 0.05, \dur, 1/7).play[m
+ Pbindef(\nitrate).stop.clear[m
+ [m
+ (Pbindef(\snark, \instrument, \snaredel, \pan,Pwhite(-1.0,1),\dur,Prand([1,2],inf),\rel,Pwhite(0.1,1),\relC,-12,[m
+[36m@@ -504,19 +664,35 @@[m [mPbindef(\nitrate).stop.clear[m
+ Pbindef(\snark, \dur, Pseq([1/4,3/4],inf))[m
+ Pbindef(\snark).stop.clear;[m
+ [m
+[31m-Pbindef(\kik, \instrument, \kick, \dur, Pshuf([Pseq([1/4],3), Pseq([1/4],4), 1/8, 1/8],inf), \amp, 0.2, \stretmch, 0.5, \freqAC, -2, \freqBC, -16).play(quant:4)[m
+[31m-Pbindef(\kik, \dur, 1/5, \freqAC,-2, \freqBC,-16)[m
+[32m+[m[32mPbindef(\kik, \instrument, \kick, \dur, Pshuf([Pseq([1/4],3), Pseq([1/4],4), 1/8, 1/8],inf), \amp, 0.6, \stretch, 1, \freqAC, -3, \freqBC, -3, \rel, 0.125, \freqA, 6500, \freqB, 103, \freqC, 40).play(quant:4)[m
+[32m+[m[32mPbindef(\kik,\freqAC, 7)[m
+[32m+[m[32mPbindef(\kik, \dur, Pseq([ Pseq([1/8], 8), Pshuf([Pseq([1/4],3), Pseq([1/4],4), 1/8, 1/8],inf)]))[m
+[32m+[m[32mPbindef(\kik, \dur, 1/30)[m
+ Pbindef(\kik).stop.clear[m
+ [m
+[32m+[m
+ //////////////////////////////////////////////////////////////////////////[m
+ [m
+[32m+[m[32m// PSEG test >> Shepard[m
+[32m+[m[32mPbindef(\test, \instrument, \sine, \dur, 1/20, \freq, [0.5,1,1.5] * Pseg( Pseq([500,1000,1500,2000, 2500],inf), Pseq([4,4,4,4,1/32],inf), \lin), \rel, 0.1).play(quant:4)[m
+[32m+[m
+[32m+[m[32m/// LEFTOVERS SineSuite[m
+[32m+[m
+[32m+[m[32mPbindef(\testspacy, \instrument, \spacy, \dur, Pseq([Pseq([Pseq([1/6],6),1/2],2), Pseq([1/4],4)],inf), \amp, 0.25, \sus, Pseq([Pseq([0.05],14), Pseq([0.2],4)],inf),\freq,Pseq([Pseq([1],14), Pshuf([1.2,1.4,1.6,Prand([1.8,1.1])])],inf) * [500, 950], \rel, 0.001, \att, 0.0001).play[m
+[32m+[m
+[32m+[m[32mPbindef(\wouine,\instrument,\formant,\dur,12,\sus,Pkey(\dur),\freq,Pseq([150,225,262.5,400],inf),\addFreq,Pseq([-20,105,142.5,-180],inf),\amp,Pwhite(0.05,0.15),\lenmul,Pwhite(0.8,1.5),\bwfreq,0).play[m
+[32m+[m[32mPbindef(\wouine, \freq, 60, \addFreq,-20, \lenmul,2,)[m
+[32m+[m[32mPbindef(\wouine).stop[m
+[32m+[m
+[32m+[m[32m//////////// C'EST BIEN POUR LA GROOVE DESSOUS[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\bete, \instrument,\kick,\amp,0.3, \rel, 0.05 ,\freqA,2800,\freqBC,Pwhite(4.0,6),\freqB, 180,\dur,1/4).play(quant:4)[m
+ [m
+[31m-Pbindef(\bete, \instrument,\kick,\amp,0.25,\freqA,10200,\freqBC,Pwhite(-20,-3),\dur,1/4,\nharm, 1).play(quant:4);[m
+ Pbindef(\bete,\rel,Pwrand([0.2,0.01,0.8],[0.6,0.2,0.2],inf),\relC,Pgauss(-3,3),\freqC,Pgauss(80,40), \nharm, 2) // Rigolo random[m
+[31m-Pbindef(\bete, \dur, 1/5)[m
+ Pbindef(\bete).stop.clear;[m
+ [m
+[31m-Pbindef(\claque, \instrument,\snare,\dur,1,\noiseRelC,-6,\noiseDecay, 0.008, \amp,0.5, \relC, -3, \hifreq, 700, \fq,280).play(quant:[4,0.5])[m
+[32m+[m[32mPbindef(\claque, \instrument,\snare,\dur,1,\noiseRelC,-6,\noiseDecay, 0.008, \amp,0.45, \relC, -3, \hifreq, 700, \fq,280).play(quant:[4,0.5])[m
+ // Pbindef(\claque, \dur, Prand([1, Pseq([1/2],2), Pshuf([1/4,1/2,1/4])],inf), \amp,Pseq([0.5,Prand([0,0.5],3)],inf));[m
+ // Pbindef(\claque, \noiseDecay,Pseq([0.001,0.003,Pwhite(0.001,0.0005,14)],inf));[m
+ Pbindef(\claque, \rel,Pseq([0.05,Pseq([0.1,0.05]),Pwhite(0.001,0.05,14)],inf));[m
+[36m@@ -524,11 +700,9 @@[m [mPbindef(\claque, \dur, Pwrand([1,1/2, Pseq([1/4,1/4])],[0.8, 0.1,0.1],inf))[m
+ Pbindef(\claque).stop[m
+ [m
+ [m
+[31m-Pbindef(\kik,\instrument,\kick,\amp,Pexprand(0.2,0.4,inf),\freq,Prand([1,1,1,\rest],inf),\nharm,Pwrand([1,2,3],[0.9,0.05,0.05],inf),\dur,1/8,\relC,-12,\attC,-6,\stretch).play(quant:4);[m
+[31m-Pbindef(\kik).stop.clear[m
+[32m+[m[32mPbindef(\clapette,\instrument,\snare,\amp,Pwhite(0.08,0.17),\dur,Prand([1,1/8,3/4],inf),\rel,0.001,\sus,0.1, \noiseDecay, Pwhite(0.001,0.005), \hifreq,Pwhite(1050,1200), \noiseRelC, -6).play(quant:[4,2])[m
+[32m+[m[32mPbindef(\clapette).stop.clear[m
+ [m
+[31m-Pbindef(\clap,\instrument,\snare,\amp,Pwhite(0.08,0.12),\dur,Prand([1,1/8,3/4],inf),\rel,0.001,\sus,0.1, \noiseDecay, Pwhite(0.01,0.005), \hifreq,Pwhite(1050,1200)).play(quant:[4,2])[m
+[31m-Pbindef(\clap).stop.clear[m
+ ([m
+ Pbindef(\clapo,\instrument,\blip,\amp,Pwhite(0.05,0.1),\nharm,1,[m
+ 	\freq,Pseq([[1020,1026,1064],[1026,1032,1128],[1032,1064,1256]],inf),[m
+[36m@@ -536,15 +710,16 @@[m [mPbindef(\clapo,\instrument,\blip,\amp,Pwhite(0.05,0.1),\nharm,1,[m
+ 	\stretch,1/4,\sus,0.02).play)[m
+ Pbindef(\clapo).clear[m
+ [m
+[31m-Pbindef(\nitrate, \instrument,\sine,\freq,Prand([\rest,[1700,7150,1800,1720,1711],[1700,1720,1760,1800,1820,1810]],inf),\amp,Pseq([0.01,0.05],inf),\att,0.001,\sus,0,\rel,Pwhite(0.1,0.03), \dur,Pseq([1/6,2/6],inf) ).play(quant:4)[m
+[32m+[m[32mPbindef(\nitrate, \instrument,\sine,\freq,Prand([\rest,[1700,7150,1800,1720,1711],[1700,1720,1760,1800,1820,1810]],inf),\amp,Pseq([0.01,0.05],inf),\att,0.001,\sus,0,\rel,Pwhite(0.1,0.03), \dur,Pseq([1/4,1/8],inf) ).play(quant:4)[m
+ Pbindef(\nitrate, \dur, 1/5)[m
+ Pbindef(\nitrate).stop.clear[m
+ [m
+[31m-Pbindef(\bas, \instrument, \sine,\dur,Pseq([1,2,3],inf),\sus, Pkey(\dur) / 2,\att,Pkey(\dur)/Pwhite(5,14),\rel,Pkey(\dur)/Pwhite(6,10), \freq,[120,180,90],\amp,0.2).play(quant:4);[m
+[32m+[m[32mPbindef(\bas, \instrument, \sine,\dur,Pseq([1,2,3],inf),\sus, Pkey(\dur) / 2.25,\att,Pkey(\dur)/Pwhite(5,14),\rel,Pkey(\dur)/Pwhite(6,10), \freq,[120,180,90],\amp,0.15).play(quant:4);[m
+ Pbindef(\bas,\freq,[120,180,90] * Pstutter(2,Pxrand([0.8,1,1.6,1.3,1.2],inf))) // Marche funebre[m
+ Pbindef(\bas,\freq,[120,180,90] * Pstutter(2,Pxrand((0.95,0.96..1.1),inf))) // Marche atonale[m
+ Pbindef(\bas,\dur,Pxrand([1/2,2,1/4],inf)) // Accèlere un peu[m
+ Pbindef(\bas, \att,0.01, \rel, 0.01, \dur,Prand([1/4,1/4,1],inf),\sus, Pseq([Pwhite(0.05,0.2,2)],inf) ) // accélère carrément[m
+[32m+[m[32mPbindef(\bass, \amp, 0.2)[m
+ Pbindef(\bas).stop.clear[m
+ [m
+ [m
+[36m@@ -561,7 +736,8 @@[m [mPbindef(\kik, \instrument, \kick,\freq, 1, \dur, Pseq([Pseq([1/8],14),Prand([Pse[m
+ Pbindef(\beachbreak).stop.clear[m
+ [m
+ [m
+[31m-[m
+[32m+[m[32mPbindef(\guuz,\instrument,\sine,\freq,[700,750,800,720,711],\amp,0.1,\att,0.001,\sus,0,\rel,Pwhite(0.1,3),\dur,Prand([4,8,16,],inf)).play[m
+[32m+[m[32mPbindef(\guuz).stop.clear[m
+ [m
+ [m
+ (Pbindef(\hardcrack, \instrument,\snaredel,\amp,Prand([0,0.1],inf),\dur,Prand([Pseq([1/4,3/4]),1],inf), \ff, Pwhite(320,500), \relC,Pwhite(-20,-6),[m
+[36m@@ -605,7 +781,7 @@[m [mPbindef(\claire, \rel, 1, \relC,-3)[m
+ Pbindef(\claire).stop.clear[m
+ [m
+ (Pbindef(\drags, \instrument,\formant,[m
+[31m-	\amp,0.8,[m
+[32m+[m	[32m\amp,0.6,[m
+ 	\dur, 1/4,[m
+ 	\stretch, Pwrand([1,2,3],[0.5,0.3,0.2],inf), // à commenter pour accélerer[m
+ 	\rel, Pwhite(0.005,0.075),[m
+
+[33mcommit 4d1eafb1593201be0105e1e28f6a405fb4366a95[m
+Author: pierrepierrepierre <pierre.signolat@gmail.com>
+Date:   Fri Oct 27 17:12:42 2017 +0200
+
+    Avant balances port nord
+
+[1mdiff --git a/patterns.scd b/patterns.scd[m
+[1mindex a06c875..9af5ea9 100644[m
+[1m--- a/patterns.scd[m
+[1m+++ b/patterns.scd[m
+[36m@@ -18,6 +18,7 @@[m [mSynthDef("sine",{arg freq=400,amp=0.35,pan=0,att=0.001,rel=0.005,phase=0,sus=0,o[m
+ 	Out.ar(out,Pan2.ar(SinOsc.ar(freq,phase) * env,pan, amp));[m
+ }).add;[m
+ [m
+[32m+[m
+ // Sine[m
+ SynthDef("droneSine",{arg freq = 440, amp=0.1, pan=0,out=0;[m
+ 	Out.ar(out,Pan2.ar(SinOsc.ar(freq),pan, amp));[m
+[36m@@ -242,7 +243,7 @@[m [mTempoClock.schedAbs(TempoClock, TempoClock.nextBar, {TempoClock.beatsPerBar_(4)}[m
+ [m
+ // SOUNDCHECK[m
+ /* Snare Level */[m
+[31m-Pbindef(\snareChk,\instrument,\snare,\dur,Prand([1/2],inf),\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.123,\fq,Pwhite(500,510.0),\hifreq,Pwhite(4150,4220)).play(quant:[4,3])[m
+[32m+[m[32mPbindef(\snareChk,\instrument,\snare,\dur,Prand([1/2],inf),\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.123,\fq,Pwhite(500,510.0),\hifreq,Pwhite(3150,3220)).play(quant:[4,3])[m
+ Pbindef(\snareChk).stop[m
+ [m
+ /* Snare Freqs */[m
+[36m@@ -291,7 +292,7 @@[m [mSynth(\sine, [\freq, 600.rand, \amp, 0.05.rand, \pan, rrand(-1, 1.0)])[m
+ Pdef.removeAll[m
+ //// PARTY 1[m
+ [m
+[31m-Pbindef(\dubbysnare,\instrument,\snare,\dur,8,\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.4,\fq,Pwhite(500,510.0),\hifreq,Pwhite(4150,4220)).play(quant:[8,3])[m
+[32m+[m[32mPbindef(\dubbysnare,\instrument,\snare,\dur,8,\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.4,\fq,Pwhite(300,310.0),\hifreq,Pwhite(750,720)).play(quant:[8,3])[m
+ [m
+ Pbindef(\heartbeat, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Pseq([(1/6),(1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20)[m
+ Pbindef(\heartbeat).collect({|e| ~lastKickEvent = e;}).play(quant:[8,0,0.1])[m
+[36m@@ -300,18 +301,27 @@[m [mPbindef(\heartbeat).collect({|e| ~lastKickEvent = e;}).play(quant:[8,0,0.1])[m
+ [m
+ Pbindef(\vent2, \instrument,\noise,\dur,0.081,\sus,0,\rel,0.025,\att,0,\bw,0.002,\amp,0.15, \pan, Pwhite(-1.0,1)).play;)[m
+ [m
+[31m-Pbindef(\wouin,\instrument,\blip,\dur,Prand([1/6,1/8,1/5,1/10],inf),\att,0.001,\rel,Pwhite(0.02,0.0005),\sus,Pkey(\dur) * Pexprand(0.00001, 0.05),\freq,Pstutter(Pexprand(500,260),Pwhite([400,600,2000],[800,1000,4000])),\amp,0.04, \pan, Pwhite(-0.5,0.5)).play(quant:[1,0])[m
+[32m+[m[32mPbindef(\wouin,\instrument,\blip,\dur,Prand([1/6,1/8,1/10],inf),\att,0.001,\rel,Pwhite(0.02,0.005),\sus,Pkey(\dur) * Pexprand(0.05, 0.1),\freq,Pstutter(Pexprand(500,260),Pwhite([400,600,2000],[800,1000,4000])),\amp,0.04, \pan, Pwhite(-0.5,0.5)).play(quant:[1,0])[m
+ [m
+ Pbindef(\vent, \pan, Pwhite(-0.5,0.5));[m
+ [m
+[31m-[m
+[32m+[m[32mPbindef(\dubbysnare, \dur, Pwrand([2,1],[0.9,0.1],inf))[m
+ [m
+ ----- play[m
+ [m
+[32m+[m[32mPbindef(\dubbysnare, \noiseRelC, Pwhite(0,-7))[m
+[32m+[m
+ Pbindef(\wouin,\dur,Pfunc{if (~noKick.(1/2)) { ~lastKickEvent[\dur] / rrand(3,6) } {[1/6,1/8,1/5,1/10].choose} })[m
+ [m
+ // Pbindef(\wouin,\sus, Pwhite(0.01,0.5) * Pkey(\dur))[m
+ [m
+[32m+[m[32m/*Pbindef(\heartbeat, \amp, Pseq([1, Prand([1, 0])],inf))*/[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\vent, \sus, Pfunc{ if((~noKick.(2/6)) && (0.3.coin)){rrand(0.07,0.0002)}{0.0001}})[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin,\rel,Pfunc{if (~noKick.(1/2)) { rrand(0.1,0.3) } {rrand(0.02,0.0005)} })[m
+[32m+[m
+ Pbindef(\heartbeat, \dur, Pwrand([Pseq([1/6, 1/4, 2/6, 1/4]),1],[0.9,0.1],inf))[m
+ [m
+ (Pbindef(\heartbeat, \dur,[m
+[36m@@ -326,21 +336,12 @@[m [mPbindef(\heartbeat, \dur, Pwrand([Pseq([1/6, 1/4, 2/6, 1/4]),1],[0.9,0.1],inf))[m
+ 	\amp, 0.8[m
+ ))[m
+ [m
+[31m-/*Pbindef(\heartbeat, \amp, Pseq([1, Prand([1, 0])],inf))*/[m
+[31m-[m
+[31m-Pbindef(\dubbysnare, \noiseRelC, Pwhite(0,-7))[m
+[31m-Pbindef(\dubbysnare, \dur, Pwrand([2,1],[0.9,0.1],inf))[m
+[31m-[m
+[31m-Pbindef(\vent, \sus, Pfunc{ if((~noKick.(2/6)) && (0.3.coin)){rrand(0.07,0.0002)}{0.0001}})[m
+[31m-[m
+[31m-Pbindef(\wouin,\rel,Pfunc{if (~noKick.(1/2)) { rrand(0.1,0.3) } {rrand(0.02,0.0005)} })[m
+ [m
+ (Pbindef(\vent2,[m
+ 	\sus, Pfunc({ if (~noKick.(2/6) && 0.5.coin) {0.13.rand} {0.01}}),[m
+ 	\dur, Pfunc({ if (~noKick.(1)) {0.25} {0.081} }),[m
+ 	\bw, Pfunc({ if (~noKick.(1)) {3.0.rand} {0.002} })[m
+ ).play)[m
+[31m-Pbindef(\vent2, \bw, 0.02, \dur, 0.5, \sus, 0).play[m
+ [m
+ Pbindef(\wouin, \sus, Pfunc{ if ((~noKick.(2/6)) && (0.5.coin)) {rrand(0.051,0.35)} {rrand(0.0005,0.005)}})[m
+ [m
+[36m@@ -352,21 +353,22 @@[m [mPbindef(\wouin, \dur, Pstutter(Pwhite(1,6),Prand([1/8,1/9,1/6,1/12],inf)))[m
+ [m
+ [m
+ [m
+[31m-Pbindef(\dubbysnare,\dur,6,\noiseRel,0.5, \amp, 0.3, \pan,0, \noiseDecay, Pseq([Pseries(0.002,0.001,30)],inf))[m
+[32m+[m[32mPbindef(\dubbysnare,\dur,1.6,\noiseRel,0.5, \amp, 0.3, \pan,0, \noiseDecay, Pseq([Pseries(0.002,0.01,30)],inf))[m
+[32m+[m[32mPbindef(\dubbysnare,  \hifreq, 770, \noiseDecay, 0.01)[m
+ Pbindef(\dubbysnare).stop.clear;[m
+ [m
+ TempoClock.tempo = 0.05[m
+[31m-TempoClock.tempo = 1.1[m
+[32m+[m[32mTempoClock.tempo = 2[m
+ [m
+ Pbindef(\wouine,\instrument,\formant,\dur,12,\sus,Pkey(\dur),\freq,Pseq([150,225,262.5,400],inf),\addFreq,Pseq([-20,105,142.5,-180],inf),\amp,Pwhite(0.05,0.15),\lenmul,Pwhite(0.8,1.5),\bwfreq,0).play[m
+ Pbindef(\wouine, \freq, 60, \addFreq,-20, \lenmul,2,)[m
+[31m-Pbindef(\wouine).stop.clear[m
+[32m+[m[32mPbindef(\wouine).stop[m
+ [m
+ [m
+ Pbindef(\baaas, \instrument, \blip, \sus, 1, \freq, (Pwhite(40,45!3)+13), \dur, 4, \amp, 0.2).play(quant:[8,3])[m
+ Pbindef(\baaas).stop[m
+ [m
+[31m-Pbindef(\dubbysnare, \noiseRelC,rrand(-4,-12), \dur, Pfunc{ if (~onBeat.(3) && (0.5.coin)) {~lastKickEvent[\dur]} {[1,2,0.5].choose}}, \amp, Pfunc{ if (~noKick.(1/4)){0.25}{if(~onBeat.value(3)){0.25}{0}}}).play(quant:4)[m
+[32m+[m[32mPbindef(\dubbysnare,  \noiseRel, 0.5, \noiseRelC,rrand(-4,-12), \dur, Pfunc{ if (~onBeat.(3) && (0.5.coin)) {~lastKickEvent[\dur]} {[1,2,0.5].choose}}, \amp, Pfunc{ if (~noKick.(1/4)){0.25}{if(~onBeat.value(3)){0.25}{0}}}).play(quant:4)[m
+ [m
+ Pbindef(\heartbeat, \amp, Pseq([1,Pwrand([1,0.5,0],[0.7,0.2,0],3)],inf))[m
+ Pbindef(\heartbeat, \dur, Pwrand([1/6,1/4, Pwhite(1,4,1)],[0.85, 0.1,0.05],inf))[m
+[36m@@ -479,7 +481,7 @@[m [me.do({arg i; i.set(\amp, 0, \ampLag, 510)})[m
+ e.do({arg i; i.free}); e = [];[m
+ [m
+ // BAAAASSSS[m
+[31m-Pbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.33],inf),\freqB,([50,65]+30) * Prand([1,2],inf),\rel,Pwhite(1,4.0),\relC,60,\freqBC,-50,\dur,Prand([6,8,12],inf),\amp,0.1).play(quant:4)[m
+[32m+[m[32mPbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.25],inf),\freqB,([50,65]+30) * Prand([1,2],inf),\rel,Pwhite(0.25,0.4),\relC,60,\freqBC,-50,\dur,Pseq([Pseq([1/4],6), 1/2, 1/4,1/2],inf),\amp,0.1).play(quant:4)[m
+ Pbindef(\deep).stop[m
+ [m
+ // Noises[m
+[36m@@ -502,8 +504,8 @@[m [mPbindef(\nitrate).stop.clear[m
+ Pbindef(\snark, \dur, Pseq([1/4,3/4],inf))[m
+ Pbindef(\snark).stop.clear;[m
+ [m
+[31m-Pbindef(\kik, \instrument, \kick, \dur, Pshuf([1,Prand([1,2,1.5]),1,0.5],inf), \amp, 0.2, \stretmch, 0.5, \freqAC, 2, \freqBC, -16).play(quant:4)[m
+[31m-Pbindef(\kik, \dur, 1/5, \freqAC,8, \freqBC,-30)[m
+[32m+[m[32mPbindef(\kik, \instrument, \kick, \dur, Pshuf([Pseq([1/4],3), Pseq([1/4],4), 1/8, 1/8],inf), \amp, 0.2, \stretmch, 0.5, \freqAC, -2, \freqBC, -16).play(quant:4)[m
+[32m+[m[32mPbindef(\kik, \dur, 1/5, \freqAC,-2, \freqBC,-16)[m
+ Pbindef(\kik).stop.clear[m
+ [m
+ //////////////////////////////////////////////////////////////////////////[m
+[36m@@ -514,18 +516,18 @@[m [mPbindef(\bete,\rel,Pwrand([0.2,0.01,0.8],[0.6,0.2,0.2],inf),\relC,Pgauss(-3,3),\[m
+ Pbindef(\bete, \dur, 1/5)[m
+ Pbindef(\bete).stop.clear;[m
+ [m
+[31m-Pbindef(\claque, \instrument,\snare,\dur,2,\noiseRelC,-2,\amp,0.1).play(quant:[4,2])[m
+[31m-// Pbindef(\claque, \sinDel, Pseq([0,Pwhite(0,0.25,1)],inf), \noiseDel, Pseq([Pwhite(0,0.2,1), 0],inf))[m
+[31m-Pbindef(\claque, \dur, Prand([1, Pseq([1/2],2), Pshuf([1/4,1/2,1/4])],inf), \amp,Pseq([0.1,Prand([0,0.1],3)],inf));[m
+[31m-Pbindef(\claque, \noiseDecay,Pseq([0.001,0.003,Pwhite(0.001,0.0005,14)],inf));[m
+[32m+[m[32mPbindef(\claque, \instrument,\snare,\dur,1,\noiseRelC,-6,\noiseDecay, 0.008, \amp,0.5, \relC, -3, \hifreq, 700, \fq,280).play(quant:[4,0.5])[m
+[32m+[m[32m// Pbindef(\claque, \dur, Prand([1, Pseq([1/2],2), Pshuf([1/4,1/2,1/4])],inf), \amp,Pseq([0.5,Prand([0,0.5],3)],inf));[m
+[32m+[m[32m// Pbindef(\claque, \noiseDecay,Pseq([0.001,0.003,Pwhite(0.001,0.0005,14)],inf));[m
+ Pbindef(\claque, \rel,Pseq([0.05,Pseq([0.1,0.05]),Pwhite(0.001,0.05,14)],inf));[m
+[31m-Pbindef(\claque).stop.clear[m
+[32m+[m[32mPbindef(\claque, \dur, Pwrand([1,1/2, Pseq([1/4,1/4])],[0.8, 0.1,0.1],inf))[m
+[32m+[m[32mPbindef(\claque).stop[m
+ [m
+ [m
+[31m-Pbindef(\kik,\instrument,\kick,\amp,Pexprand(0.2,0.4,inf),\freq,Prand([1,1,1,\rest],inf),\nharm,Pwrand([1,2,3],[0.9,0.05,0.05],inf),\dur,1/4,\relC,-12,\attC,-6).play(quant:4);[m
+[32m+[m[32mPbindef(\kik,\instrument,\kick,\amp,Pexprand(0.2,0.4,inf),\freq,Prand([1,1,1,\rest],inf),\nharm,Pwrand([1,2,3],[0.9,0.05,0.05],inf),\dur,1/8,\relC,-12,\attC,-6,\stretch).play(quant:4);[m
+ Pbindef(\kik).stop.clear[m
+ [m
+[31m-Pbindef(\clap,\instrument,\snare,\amp,Pwhite(0.08,0.12),\stretch,Prand([2,1.5,0.75],inf),\rel,0.4,\sus,0.02).play(quant:[4,2])[m
+[32m+[m[32mPbindef(\clap,\instrument,\snare,\amp,Pwhite(0.08,0.12),\dur,Prand([1,1/8,3/4],inf),\rel,0.001,\sus,0.1, \noiseDecay, Pwhite(0.01,0.005), \hifreq,Pwhite(1050,1200)).play(quant:[4,2])[m
+ Pbindef(\clap).stop.clear[m
+ ([m
+ Pbindef(\clapo,\instrument,\blip,\amp,Pwhite(0.05,0.1),\nharm,1,[m
+[36m@@ -535,7 +537,7 @@[m [mPbindef(\clapo,\instrument,\blip,\amp,Pwhite(0.05,0.1),\nharm,1,[m
+ Pbindef(\clapo).clear[m
+ [m
+ Pbindef(\nitrate, \instrument,\sine,\freq,Prand([\rest,[1700,7150,1800,1720,1711],[1700,1720,1760,1800,1820,1810]],inf),\amp,Pseq([0.01,0.05],inf),\att,0.001,\sus,0,\rel,Pwhite(0.1,0.03), \dur,Pseq([1/6,2/6],inf) ).play(quant:4)[m
+[31m-Pbindef(\nitrate, \amp, 0.05, \dur, 1/4)[m
+[32m+[m[32mPbindef(\nitrate, \dur, 1/5)[m
+ Pbindef(\nitrate).stop.clear[m
+ [m
+ Pbindef(\bas, \instrument, \sine,\dur,Pseq([1,2,3],inf),\sus, Pkey(\dur) / 2,\att,Pkey(\dur)/Pwhite(5,14),\rel,Pkey(\dur)/Pwhite(6,10), \freq,[120,180,90],\amp,0.2).play(quant:4);[m
+[36m@@ -553,7 +555,7 @@[m [mPbindef(\bas).stop.clear[m
+ Pbindef(\snark, \dur, Pseq([1/4,3/4],inf))[m
+ Pbindef(\snark).stop.clear;[m
+ [m
+[31m-Pbindef(\kik, \instrument, \kick, \dur, Pseq([1,1,1,0.5],inf), \amp, 0.2, \stretch, 0.5, \freqAC, 0).play(quant:4)[m
+[32m+[m[32mPbindef(\kik, \instrument, \kick,\freq, 1, \dur, Pseq([Pseq([1/8],14),Prand([Pseq([1/8],2), 1/4, 1/2])],inf)).play(quant:4)[m
+ [m
+ (Pbindef(\beachbreak, \instrument, \snaredel,\dur,Pxrand([1,4,8,16],inf),\rel,Pwhite(1,3), \deldur,Pwhite(0.5,3),\delvit,Pwhite(0.01,1),\delfq,Pwhite(1,20), \amp,Pwhite(0.1,0.5),\ff,Pexprand(10,900)).play(quant:4))[m
+ Pbindef(\beachbreak).stop.clear[m
+[36m@@ -718,7 +720,7 @@[m [mPbindef(\harcel).stop.clear[m
+ [m
+ TempoClock.default.tempo = 1.5[m
+ [m
+[31m-/////// 14/08/17[m
+[32m+[m[32m/////// 14/08/17 // ça peut danser[m
+ Pdef.removeAll[m
+ Pbindef(\bete,\instrument,\kick,\amp,0.15,\dur,1/8, \rel,0.1).play(quant:4);[m
+ Pbindef(\bete,\relC,Pstutter(48,Pgauss(-6,6)),\freqC,Pstutter(72,Pgauss(60,40)));[m
+[36m@@ -732,7 +734,7 @@[m [mPbindef(\kik,\instrument,\kick,\amp,Pseq([Pwrand([0.4,0.2,0],[0.8,0.175,0.025]),[m
+ Pbindef(\kik, \pan, Pwalk((-1,-0.9..1),Prand([0,1,2],inf), Pseq([1,-1],inf),5))[m
+ Pbindef(\kik).stop.clear[m
+ [m
+[31m-Pbindef(\clap,\instrument,\snare,\amp,Pwhite(0.01,0.15),\dur,Prand([1,2],inf),\noiseRelC,-16,\sus,0.05).play(quant:[4,0.5])[m
+[32m+[m[32mPbindef(\clap,\instrument,\snare,\amp,Pwhite(0.01,0.5),\dur,Prand([1,2],inf),\noiseRelC,-16,\sus,0.05).play(quant:[4,0.5])[m
+ Pbindef(\clap, \stretch,1/2)[m
+ Pbindef(\clap).stop.clear[m
+ [m
+
+[33mcommit 4b0ef03a26143c1df6edce6508fd4415301d8089[m
+Author: pierrepierrepierre <pierre.signolat@gmail.com>
+Date:   Thu Oct 19 19:09:09 2017 +0200
+
+    Après Balances Spektrum
+
+[1mdiff --git a/gliss.scd b/gliss.scd[m
+[1mindex edcb822..bdb460f 100644[m
+[1m--- a/gliss.scd[m
+[1m+++ b/gliss.scd[m
+[36m@@ -35,8 +35,8 @@[m [mSynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out[m
+ 	,\freqLag,0.05[m
+ 	,\pan,1.0.bilinrand[m
+ 	,\panMod,0[m
+[31m-	,\amp,0.03[m
+[31m-	,\ampLag,10[m
+[32m+[m	[32m,\amp,0.05[m
+[32m+[m	[32m,\ampLag,0.1[m
+ )});)[m
+ [m
+ /* CONTROL AU HASARD -- Panoramique modulation */[m
+[36m@@ -51,10 +51,10 @@[m [mSynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out[m
+  /*CONTROL PRECIS */[m
+ ~info.value(~sines)[m
+ [m
+[31m-(~sines[2[m
+[32m+[m[32m(~sines[3[m
+ ].set([m
+[31m-	\freq,572 + 30.0.rand[m
+[31m-	,\freqLag, 1000[m
+[32m+[m	[32m\freq,402 + 30.0.rand[m
+[32m+[m	[32m,\freqLag, 100[m
+ 	,\amp, 0.025[m
+ 	,\ampLag, 500[m
+ ))[m
+
+[33mcommit 40463544b9f6d4b9a67ebfcdae7637039f414cd9[m
+Author: pierrepierrepierre <pierre.signolat@gmail.com>
+Date:   Thu Oct 19 19:08:50 2017 +0200
+
+    Après Balances Spektrum
+
+[1mdiff --git a/patterns.scd b/patterns.scd[m
+[1mindex 425f5fb..a06c875 100644[m
+[1m--- a/patterns.scd[m
+[1m+++ b/patterns.scd[m
+[36m@@ -239,7 +239,27 @@[m [mTempoClock.schedAbs(TempoClock, TempoClock.nextBar, {TempoClock.beatsPerBar_(4)}[m
+ // Démarre le HEARTBEAT et le WOUIN[m
+ // Augmente la variation de DUBBYSNARE et ajoute lui un coup[m
+ // Divise DUBBYSNARE et mets le tempo à 0.05[m
+[31m-Pbindef[m
+[32m+[m
+[32m+[m[32m// SOUNDCHECK[m
+[32m+[m[32m/* Snare Level */[m
+[32m+[m[32mPbindef(\snareChk,\instrument,\snare,\dur,Prand([1/2],inf),\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.123,\fq,Pwhite(500,510.0),\hifreq,Pwhite(4150,4220)).play(quant:[4,3])[m
+[32m+[m[32mPbindef(\snareChk).stop[m
+[32m+[m
+[32m+[m[32m/* Snare Freqs */[m
+[32m+[m[32mPbindef(\snareChk,\fq,Pstutter(1,Pseries(280, 1)).trace)[m
+[32m+[m
+[32m+[m[32m/* Kick level */[m
+[32m+[m[32mPbindef(\kickChk, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Prand([(1/6),(1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20).play(quant:[4,0])[m
+[32m+[m[32mPbindef(\kickChk, \dur, Prand([1/4, 1/2, 1/8],inf))[m
+[32m+[m
+[32m+[m[32m/* Kick Freqs */[m
+[32m+[m[32mPbindef(\kickChk, \instrument,\kick,\freqA,Pwhite(2540,2550),\freqC,Pwhite(102,104.0),\freqB,Pstutter(1,Pseries(60, 1)).trace).play[m
+[32m+[m[32mPbindef(\kickChk, \freqB, \freqC, Pstutter(3,Pseries(50, 1)).trace)[m
+[32m+[m
+[32m+[m[32m/* Bass */[m
+[32m+[m[32mPbindef(\baaas, \instrument, \blip, \sus, 1, \freq, (Pwhite(40,45!3)+33).trace, \dur, 4, \amp, 0.2).play(quant:[4,3])[m
+[32m+[m
+[32m+[m
+ // PUMP[m
+ Pbindef(\testkick, \instrument, \kick, \dur, 0.6, \nharm, 2).play(quant:4)[m
+ Pbindef(\testkick).stop.clear[m
+[36m@@ -266,13 +286,12 @@[m [mPbindef(\introb, \dur, 0.1)[m
+ Pbindef(\introb).stop.clear[m
+ [m
+ Synth([\noiseDwn, \noiseUp].choose, [\sus, 1.0.rand, \rel, 2.rand, \amp, 0.008])[m
+[31m-[m
+ Synth(\sine, [\freq, 600.rand, \amp, 0.05.rand, \pan, rrand(-1, 1.0)])[m
+ [m
+ Pdef.removeAll[m
+ //// PARTY 1[m
+ [m
+[31m-Pbindef(\dubbysnare,\instrument,\snare,\dur,8,\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.4,\fq,Pwhite(300,310.0),\hifreq,Pwhite(3500,3520)).play(quant:[8,3])[m
+[32m+[m[32mPbindef(\dubbysnare,\instrument,\snare,\dur,8,\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.4,\fq,Pwhite(500,510.0),\hifreq,Pwhite(4150,4220)).play(quant:[8,3])[m
+ [m
+ Pbindef(\heartbeat, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Pseq([(1/6),(1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20)[m
+ Pbindef(\heartbeat).collect({|e| ~lastKickEvent = e;}).play(quant:[8,0,0.1])[m
+[36m@@ -389,7 +408,7 @@[m [mPbindef(\dubbysnare, \amp,0.6 )[m
+ [m
+ Pbindef(\clap, \instrument, \clap, \dur, Pxrand([0.5,Pshuf([0.25,0.75])],inf), \amp, 0.3, \rq, Pwhite(0.2,0.6), \rel,Pwhite(0.2,0.4), \freq,900, \stretch, 0.5).play(quant:[4,0.5])[m
+ [m
+[31m-Pbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) + Pwhite(1,10), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKickEvent[\dur] >= 1){0.1}{0}}).play[m
+[32m+[m[32mPbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) - Pwhite(10,20), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKickEvent[\dur] >= 1){0.25}{0}}).play[m
+ Pbindef(\tremble, \amp, 0.2)[m
+ Pbindef(\tremble).stop[m
+ [m
+[36m@@ -460,7 +479,7 @@[m [me.do({arg i; i.set(\amp, 0, \ampLag, 510)})[m
+ e.do({arg i; i.free}); e = [];[m
+ [m
+ // BAAAASSSS[m
+[31m-Pbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.33],inf),\freqB,[50,65] * Prand([1,2],inf),\rel,Pwhite(1,4.0),\relC,60,\freqBC,-50,\dur,Prand([6,8,12],inf),\amp,0.1).play(quant:4)[m
+[32m+[m[32mPbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.33],inf),\freqB,([50,65]+30) * Prand([1,2],inf),\rel,Pwhite(1,4.0),\relC,60,\freqBC,-50,\dur,Prand([6,8,12],inf),\amp,0.1).play(quant:4)[m
+ Pbindef(\deep).stop[m
+ [m
+ // Noises[m
+
+[33mcommit df2abdb3051f050d01f09525bf80d37e0d197423[m
+Author: pierrepierrepierre <pierre.signolat@gmail.com>
+Date:   Thu Oct 19 14:26:34 2017 +0200
+
+    avant Spektrum
+
+[1mdiff --git a/bandes.scd b/bandes.scd[m
+[1mindex f520477..fff4126 100644[m
+[1m--- a/bandes.scd[m
+[1m+++ b/bandes.scd[m
+[36m@@ -56,11 +56,11 @@[m [mSynthDef("playbuf",{[m
+ [m
+ [m
+ Pbindef(\helico,\instrument,\playbuf,\startPos,Pstutter(24*Pwhite(20,50),Pwhite(0,1.0)),\att,0.1,\rel,0.3,\dur,Pn(Pshuf([1/8,1/16,1/16,1/8,1/4,1/8].sputter(0.75,8)),inf),\attC,12,\relC,-3,\sus,Pexprand(0.5,0),\amp,0.2).play[m
+[31m-Pbindef(\helico,\relC,3, \amp,0.2)[m
+[32m+[m[32mPbindef(\helico,\relC,-1)[m
+ Pbindef(\helico,\stretch, 1)[m
+ Pbindef(\helico).stop.clear[m
+ [m
+[31m-Pbindef(\sur,\instrument,\playbuf,\startPos,Pstutter(24*Pwhite(20,50),Pwhite(0,1.0)),\sus,0,\att,0.1,\rel,0.5,\dur,Prand([1/4,1/3,2/4,3/4,2/3,1,4/3,5/4,6/4,7/4,7/3],inf),\attC,30,\relC,-3,\amp,0.3,\rate,1).play[m
+[32m+[m[32mPbindef(\sur,\instrument,\playbuf,\startPos,Pstutter(24*Pwhite(20,50),Pwhite(0,1.0)),\sus,0,\att,0.1,\rel,0.5,\dur,Prand([1/4,1/3,2/4,3/4,2/3,1,4/3,5/4,6/4,7/4,7/3],inf),\attC,30,\relC,0,\amp,0.3,\rate,1).play[m
+ Pbindef(\sur,\dur,Pseq([Pgeom(0.1,1.01,300),Pseq([4],inf)],1),\sus,(Pkey(\dur)),\att,0,\rel,0,\startPos,Pstutter(Pwhite(1,8),Pwhite(0,1.0)));[m
+ Pbindef(\sur, \amp, 0.01)[m
+ Pbindef(\sur).stop.clear[m
+[1mdiff --git a/gliss.scd b/gliss.scd[m
+[1mindex 3bf80b2..edcb822 100644[m
+[1m--- a/gliss.scd[m
+[1m+++ b/gliss.scd[m
+[36m@@ -15,12 +15,11 @@[m [mSynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out[m
+ 	Out.ar(out,Pan2.ar(SinOsc.ar(freq),pano, amp));[m
+ },[10,0,0,10,10]).add;[m
+ [m
+[31m-~info = {arg group; group.size.do({arg i; ~sines[i].get(\freq, {arg val; (i+"").post; val.postln;})})}[m
+[32m+[m[32m~info = {arg group; group.size.do({arg i; ~sines[i].get(\freq, {arg val; (i+"").post; val.post;}); ~sines[i].get(\amp, {arg val; " : ".post; val.round(0.001).postln})})}[m
+ )[m
+ [m
+[31m-[m
+ /* BATCH MAKE */[m
+[31m-( ~sines.do({arg i; i.free}); ~sines = 8.collect({arg i; Synth(\gliss,[[m
+[32m+[m[32m( ~sines.do({arg i; i.free}); ~sines = 3.collect({arg i; Synth(\gliss,[[m
+ 	\freq,rrand(2060,5500).postln[m
+ 	,\freqLag,0.025[m
+ 	,\panLag,20[m
+[36m@@ -46,15 +45,18 @@[m [mSynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out[m
+ /* CONTROL au HASARD -- Freqs */[m
+ ~sines[~sines.size.rand.post].set(\freq, exprand(460, 1210), \freqLag, 350, \amp, 0.025, \ampLag, 0.01)[m
+ [m
+[32m+[m[32m/* ADD */[m
+[32m+[m[32m~sines = ~sines.addAll(Synth(\gliss, [\amp, 0.001,\freq, 1480.rand + 10.0.rand]))[m
+[32m+[m
+  /*CONTROL PRECIS */[m
+ ~info.value(~sines)[m
+ [m
+[31m-(~sines[5[m
+[32m+[m[32m(~sines[2[m
+ ].set([m
+[31m-	\freq,800 + 10.0.rand[m
+[31m-	,\freqLag, 500.0[m
+[31m-	// ,\amp, 0.025[m
+[31m-	// ,\ampLag, 0.1[m
+[32m+[m	[32m\freq,572 + 30.0.rand[m
+[32m+[m	[32m,\freqLag, 1000[m
+[32m+[m	[32m,\amp, 0.025[m
+[32m+[m	[32m,\ampLag, 500[m
+ ))[m
+ [m
+ /* BATCH CONTROL -- Freqs */[m
+[36m@@ -69,9 +71,9 @@[m [mSynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out[m
+ [m
+ /* LOOP CONTROL -- Freqs */[m
+ (r.free; r = Routine({ loop {~sines.do({arg i; i.post; i.set( // Module lentement[m
+[31m-	\freq, exprand(1960,32690).postln[m
+[32m+[m	[32m\freq, exprand(160,1690).postln[m
+ 	,\freqLag, 1000[m
+[31m-	, \amp, 0[m
+[32m+[m	[32m, \amp, 0.025[m
+ 	, \ampLag,1000.0.rand[m
+ 	)}); 1000[m
+ 		.wait;}[m
+[36m@@ -86,6 +88,6 @@[m [mr.stop[m
+ /////////////////////////////////////////[m
+ [m
+ /* ADD */[m
+[31m-~sines = ~sines.addAll(Synth(\gliss, [\amp, 0.01,\freq, 4400.0.rand]))[m
+[32m+[m[32m~sines = ~sines.addAll(Synth(\gliss, [\amp, 0.001,\freq, 4540.0.rand]))[m
+ [m
+ ~sines[1].set(\freq,55,\amp, 0.1)[m
+\ No newline at end of file[m
+[1mdiff --git a/patterns.scd b/patterns.scd[m
+[1mindex 92b36b8..425f5fb 100644[m
+[1m--- a/patterns.scd[m
+[1m+++ b/patterns.scd[m
+[36m@@ -244,7 +244,7 @@[m [mPbindef[m
+ Pbindef(\testkick, \instrument, \kick, \dur, 0.6, \nharm, 2).play(quant:4)[m
+ Pbindef(\testkick).stop.clear[m
+ Pbindef(\mimi, \instrument, \snare).play[m
+[31m-Synth("snare").play[m
+[32m+[m[32mSynth("snare",[\amp, 0.5]).play[m
+ Pbindef(\mimi,\amp,0.5)[m
+ Pbindef(\mimi).stop.clear[m
+ Pbindef(\testsnare, \noiseRelC,-10, \amp,0.1)[m
+[36m@@ -274,14 +274,14 @@[m [mPdef.removeAll[m
+ [m
+ Pbindef(\dubbysnare,\instrument,\snare,\dur,8,\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.4,\fq,Pwhite(300,310.0),\hifreq,Pwhite(3500,3520)).play(quant:[8,3])[m
+ [m
+[31m-Pbindef(\heartbeat, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Pseq([(1/6), (1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20)[m
+[32m+[m[32mPbindef(\heartbeat, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Pseq([(1/6),(1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20)[m
+ Pbindef(\heartbeat).collect({|e| ~lastKickEvent = e;}).play(quant:[8,0,0.1])[m
+ [m
+ (Pbindef(\vent, \instrument,\noise,\dur, 0.08,\sus, 0.0001,\attSweepC, 20,\bw,Pwhite(0.1,0.5),\amp,0.25, \relC,-20).play;[m
+ [m
+ Pbindef(\vent2, \instrument,\noise,\dur,0.081,\sus,0,\rel,0.025,\att,0,\bw,0.002,\amp,0.15, \pan, Pwhite(-1.0,1)).play;)[m
+ [m
+[31m-Pbindef(\wouin,\instrument,\blip,\dur,Pfunc{~lastKickEvent[\dur]},\att,0.001,\rel,Pwhite(0.02,0.0005),\sus,Pkey(\dur)*0.00009,\freq,Pstutter(Pexprand(500,260),Pwhite([400,600,2000],[800,1000,4000])),\amp,0.04, \pan, Pwhite(-0.5,0.5)).play(quant:[1,0])[m
+[32m+[m[32mPbindef(\wouin,\instrument,\blip,\dur,Prand([1/6,1/8,1/5,1/10],inf),\att,0.001,\rel,Pwhite(0.02,0.0005),\sus,Pkey(\dur) * Pexprand(0.00001, 0.05),\freq,Pstutter(Pexprand(500,260),Pwhite([400,600,2000],[800,1000,4000])),\amp,0.04, \pan, Pwhite(-0.5,0.5)).play(quant:[1,0])[m
+ [m
+ Pbindef(\vent, \pan, Pwhite(-0.5,0.5));[m
+ [m
+[36m@@ -289,36 +289,46 @@[m [mPbindef(\vent, \pan, Pwhite(-0.5,0.5));[m
+ [m
+ ----- play[m
+ [m
+[31m-Pbindef(\wouin,\dur,Pfunc{if (0.3.coin) {~lastKickEvent[\dur]} {[1/8, 1/6, 1/12].choose}})[m
+[31m-Pbindef(\wouin,\dur,Pseq([1/8, 1/6, 1/12], inf))[m
+[32m+[m[32mPbindef(\wouin,\dur,Pfunc{if (~noKick.(1/2)) { ~lastKickEvent[\dur] / rrand(3,6) } {[1/6,1/8,1/5,1/10].choose} })[m
+[32m+[m
+[32m+[m[32m// Pbindef(\wouin,\sus, Pwhite(0.01,0.5) * Pkey(\dur))[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pwrand([Pseq([1/6, 1/4, 2/6, 1/4]),1],[0.9,0.1],inf))[m
+ [m
+ (Pbindef(\heartbeat, \dur,[m
+ 	Pseq([[m
+ 		(1/6),[m
+[31m-		Pwrand([ Pseq([1/4, 2/6, 1/4]), Pshuf([Pseq([((2/6)+(1/4)) / 5],5), 1/4])], [0.9,0.1])[m
+[32m+[m		[32mPwrand([[m
+[32m+[m			[32mPseq([1/4, 2/6, 1/4]),[m
+[32m+[m			[32mPshuf([ Pseq([((2/6)+(1/4)) / 5],5), 1/4])][m
+[32m+[m		[32m, [0.99,0.01]) // < change weights[m
+ 		,Pwrand([ 1/4,Pseq([1/4, 1])], [0.9,0.1])[m
+ 	],inf),[m
+ 	\amp, 0.8[m
+ ))[m
+ [m
+[31m-Pbindef(\heartbeat, \amp, Pseq([1, Prand([1, 0])],inf))[m
+[32m+[m[32m/*Pbindef(\heartbeat, \amp, Pseq([1, Prand([1, 0])],inf))*/[m
+ [m
+ Pbindef(\dubbysnare, \noiseRelC, Pwhite(0,-7))[m
+ Pbindef(\dubbysnare, \dur, Pwrand([2,1],[0.9,0.1],inf))[m
+ [m
+ Pbindef(\vent, \sus, Pfunc{ if((~noKick.(2/6)) && (0.3.coin)){rrand(0.07,0.0002)}{0.0001}})[m
+ [m
+[32m+[m[32mPbindef(\wouin,\rel,Pfunc{if (~noKick.(1/2)) { rrand(0.1,0.3) } {rrand(0.02,0.0005)} })[m
+[32m+[m
+ (Pbindef(\vent2,[m
+[31m-	\sus, Pfunc({ if (~noKick.(2/6)) {0.035} {0}}),[m
+[31m-	// \relC, Pfunc({ if (~noKick.(2/6)) {3} {-6}}),[m
+[31m-	// \dur, Pfunc({ if (~noKick.(1)) {0.125} {0.081} }),[m
+[31m-	// \bw, Pfunc({ if (~noKick.(2) {2} {0.002} )})[m
+[32m+[m	[32m\sus, Pfunc({ if (~noKick.(2/6) && 0.5.coin) {0.13.rand} {0.01}}),[m
+[32m+[m	[32m\dur, Pfunc({ if (~noKick.(1)) {0.25} {0.081} }),[m
+[32m+[m	[32m\bw, Pfunc({ if (~noKick.(1)) {3.0.rand} {0.002} })[m
+ ).play)[m
+ Pbindef(\vent2, \bw, 0.02, \dur, 0.5, \sus, 0).play[m
+ [m
+[31m-Pbindef(\wouin, \sus, Pfunc{ if ((~noKick.(1)) && (0.3.coin)) {rrand(0.01,0.25)} {rrand(0.0005,0.005)}})[m
+[31m-Pbindef(\wouin, \nharm, Pfunc{ if ((~noKick.(2/6)) && (0.3.coin)) {rrand(3,16)} {2}})[m
+[31m-Pbindef(\wouin, \rel, Pfunc{ if (~noKick.(2/6) && (0.1.coin)) {(~lastKickEvent[\dur]-0.05).abs} {rrand(0.05,0.0005)}})[m
+[32m+[m[32mPbindef(\wouin, \sus, Pfunc{ if ((~noKick.(2/6)) && (0.5.coin)) {rrand(0.051,0.35)} {rrand(0.0005,0.005)}})[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin, \nharm, Pfunc{ if ((~noKick.(1/2)) && (0.3.coin)) {rrand(3,16)} {2}})[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin, \rel, Pfunc{ if (~noKick.(2/6) && (0.1.coin)) {(~lastKickEvent[\dur]-0.001.rand).abs} {rrand(0.05,0.0005)}})[m
+[32m+[m
+ Pbindef(\wouin, \dur, Pstutter(Pwhite(1,6),Prand([1/8,1/9,1/6,1/12],inf)))[m
+ [m
+ [m
+[36m@@ -337,7 +347,7 @@[m [mPbindef(\wouine).stop.clear[m
+ Pbindef(\baaas, \instrument, \blip, \sus, 1, \freq, (Pwhite(40,45!3)+13), \dur, 4, \amp, 0.2).play(quant:[8,3])[m
+ Pbindef(\baaas).stop[m
+ [m
+[31m-Pbindef(\dubbysnare, \noiseRelC,rrand(-4,-12), \dur, Pfunc{ if (~onBeat.(3) && (0.5.coin)) {~lastKickEvent[\dur]} {[1,2,0.5].choose}}, \amp, Pfunc{ if (~noKick.(1/4)){0.25}{if(~onBeat.value(3)){0.25}{0}}}).play(quant:4);[m
+[32m+[m[32mPbindef(\dubbysnare, \noiseRelC,rrand(-4,-12), \dur, Pfunc{ if (~onBeat.(3) && (0.5.coin)) {~lastKickEvent[\dur]} {[1,2,0.5].choose}}, \amp, Pfunc{ if (~noKick.(1/4)){0.25}{if(~onBeat.value(3)){0.25}{0}}}).play(quant:4)[m
+ [m
+ Pbindef(\heartbeat, \amp, Pseq([1,Pwrand([1,0.5,0],[0.7,0.2,0],3)],inf))[m
+ Pbindef(\heartbeat, \dur, Pwrand([1/6,1/4, Pwhite(1,4,1)],[0.85, 0.1,0.05],inf))[m
+[36m@@ -345,8 +355,8 @@[m [mPbindef(\heartbeat, \dur, Pwrand([1/6,1/4, Pwhite(1,4,1)],[0.85, 0.1,0.05],inf))[m
+ Pbindef(\vent, \freq, Pstutter(Pwhite(30,200),Pexprand(6000,8000)))[m
+ Pbindef(\vent, \bw,Pwhite(0.03,3))[m
+ [m
+[31m-Pbindef(\vent, \relC,Pseq([Pgeom(-20,1.1)]),\att,Pfunc{if (~noKick.(2/6)) {rrand(0.01,0.55)} {0.001}}) // < ++ \att[m
+[31m-Pbindef(\vent2, \rel, 0.36) // < augmente et va dans l'espace[m
+[32m+[m[32mPbindef(\vent, \relC,Pseq([Pgeom(-20,1.1)]),\att,Pfunc{if (~noKick.(2/6)) {rrand(0.01,0.5)} {0.001}}) // < ++ \att[m
+[32m+[m[32mPbindef(\vent2, \rel, 0.16) // < augmente et va dans l'espace[m
+ [m
+ Pbindef(\vent).stop.clear;[m
+ Pbindef(\vent2).stop.clear;[m
+[36m@@ -366,7 +376,7 @@[m [mPbindef(\wouine).stop;[m
+ Pdef.removeAll[m
+ [m
+ /////// PARTY 2 : Clubbez moi[m
+[31m-Pbindef(\heartbeat).[m
+[32m+[m[32mPbindef(\heartbeat).play[m
+ Pbindef(\heartbeat, \dur, Pwrand([ Pseq([1/6,1/4,2/6,1/4]), 1],[0.9,0.1],inf))[m
+ Pbindef(\heartbeat, \dur, Pwrand([ Pstutter(Pwhite(1,4),Pseq([1/6,1/4,2/6,1/4])), 1],[0.5,0.5],inf))[m
+ Pbindef(\heartbeat, \dur, Pwrand([ Pseq([1/6,1/4,2/6,1/4]), Pseq([1/5],10), 1],[0.8,0.1,0.1],inf))[m
+[36m@@ -379,27 +389,27 @@[m [mPbindef(\dubbysnare, \amp,0.6 )[m
+ [m
+ Pbindef(\clap, \instrument, \clap, \dur, Pxrand([0.5,Pshuf([0.25,0.75])],inf), \amp, 0.3, \rq, Pwhite(0.2,0.6), \rel,Pwhite(0.2,0.4), \freq,900, \stretch, 0.5).play(quant:[4,0.5])[m
+ [m
+[31m-Pbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) + Pwhite(1,10), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKickEvent[\dur] == (1/5) || ~lastKickEvent[\dur] >= 1){0.1}{0}}).play[m
+[32m+[m[32mPbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) + Pwhite(1,10), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKickEvent[\dur] >= 1){0.1}{0}}).play[m
+ Pbindef(\tremble, \amp, 0.2)[m
+ Pbindef(\tremble).stop[m
+ [m
+ Pbindef(\snare, \instrument, \snaredel, \dur, Prand([Pseq([1/3],3), Pseq([1/5],5)],inf), \amp, Pfunc{ if (~lastKickEvent[\dur] >= 0.5 ) {0.05} {0}}, \deldur, 1, \delfq, 350,  \deldur, 1.5, \sus, 0.15, \delvit, 0.001, \delfq, 1, \lenmul,0.5).play(quant:4)[m
+[31m-Pbindef(\snare, \crash, 0.4) // ++ crash pour surcharger cpu :: default = 0.1[m
+[32m+[m[32mPbindef(\snare, \crash, 0.04) // ++ crash pour surcharger cpu :: default = 0.1[m
+ Pbindef(\snare).stop.clear[m
+ [m
+ (Pbindef(\snark, \instrument, \snaredel, \pan,Pwhite(-1.0,1),[m
+[31m-	\dur,Pfunc{ if(~lastKickEvent[\dur] >= 0.5) {rrand(0.1,3)}{0.5}},[m
+[31m-	\amp,Pfunc{ if(~lastKickEvent[\dur] >= 0.5){0.6}{0.001}},[m
+[32m+[m	[32m\dur,Pfunc{ if(~lastKickEvent[\dur] >= 1) {rrand(0.1,3)}{0.5}},[m
+[32m+[m	[32m\amp,Pfunc{ if(~lastKickEvent[\dur] >= 0.5){0.6}{0.01}},[m
+ 	\rel,Pwhite(0.05,1),\relC,-3, \deldur,Pwhite(0.05,0.3),\delvit,Pwhite(0.01,0.5),\delfq,Pwhite(1,30),[m
+ 	\ff,Pwrand([Pwhite(10,100,1), Pwhite(2000,5000,1)],[0.7,0.3],inf)[m
+ ).play(quant:[4,2]))[m
+[31m-Pbindef(\snark, \crash, 0.13) // ++ crash pour surcharger cpu :: default = 2[m
+[32m+[m[32mPbindef(\snark, \crash, 0.013) // ++ crash pour surcharger cpu :: default = 2[m
+ Pbindef(\snark).stop.clear;[m
+ [m
+ [m
+[31m-Pbindef(\roll, \instrument, \snare, \dur, 1/8, \noiseRelC, -12, \rel, 0.05,\att, 0.0001, \dec, 0.02, \relC, -8, \fq, [1300, 900], \hifreq, 1600, \noiseDecay, 0.05, \noiseDel, 0.01, \amp, Pfunc{if( ~noKick.(1)) {0.05} {0}}).play(quant:4)[m
+[32m+[m[32mPbindef(\roll, \instrument, \snare, \dur, Pfunc{if(~lastKickEvent[\dur] < 1) {~lastKickEvent[\dur]} {1/8}}, \noiseRelC, -12, \rel, 0.05,\att, 0.0001, \dec, 0.02, \relC, -8, \fq, [1300, 900], \hifreq, 1600, \noiseDecay, 0.05, \noiseDel, 0.01, \amp,Pfunc{ if(~lastKickEvent[\dur] >= 1) {0.05} {0.001}}).play(quant:4)[m
+ Pbindef(\roll, \amp,0.1)[m
+[31m-Pbindef(\roll, \crash, 0.18) // ++ crash pour surcharger cpu :: default = 0.1[m
+[32m+[m[32mPbindef(\roll, \crash, 0.018) // ++ crash pour surcharger cpu :: default = 0.1[m
+ [m
+ Pbindef(\clap, \freq, Pseq([Pseries(900,1,600)],inf))[m
+ Pbindef(\clap, \dur, Pshuf([Pxrand([0.5,Pshuf([0.25,0.75])],2), Pseq([0.25],8), 1,2],inf))[m
+[36m@@ -438,7 +448,7 @@[m [mPbindef(\soussnare,\noiseRelC,-30,\rel,0.75)[m
+ Pbindef(\soussnare,\noiseRelC,Pseq([Pseq([-30],Pwhite(4,14,1)),Pseq([10],Pwhite(1,4,1))],inf))[m
+ Pbindef(\soussnare).stop.clear;[m
+ [m
+[31m-g=[]; f=[]; // < METS ça / ! ! ! \[m
+[32m+[m[32mg=[]; e=[]; // < METS ça / ! ! ! \[m
+ Pdef.removeAll;[m
+ [m
+ g = g.add(Synth(\autoglob,[\argA,10.0.rand,\argB,30.rand,\argC,rrand(500,1400),\amp,0.31,\panFreq,0.05, \ampLag, 0.2]))[m
+[36m@@ -446,8 +456,8 @@[m [mg.do({arg i; i.set(\amp, 0, \ampLag, 100)})[m
+ g.do({arg i; i.free}); g=[];[m
+ [m
+ e = e.add(Synth(\autoformant,[\fund,100.rand,\form,600.rand,\bw,1800.rand, \amp, 0.1, \ampLag, 0.2]))[m
+[31m-f.do({arg i; i.set(\amp, 0, \ampLag, 510)})[m
+[31m-f.do({arg i; i.free}); f = [];[m
+[32m+[m[32me.do({arg i; i.set(\amp, 0, \ampLag, 510)})[m
+[32m+[m[32me.do({arg i; i.free}); e = [];[m
+ [m
+ // BAAAASSSS[m
+ Pbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.33],inf),\freqB,[50,65] * Prand([1,2],inf),\rel,Pwhite(1,4.0),\relC,60,\freqBC,-50,\dur,Prand([6,8,12],inf),\amp,0.1).play(quant:4)[m
+[36m@@ -474,7 +484,7 @@[m [mPbindef(\snark, \dur, Pseq([1/4,3/4],inf))[m
+ Pbindef(\snark).stop.clear;[m
+ [m
+ Pbindef(\kik, \instrument, \kick, \dur, Pshuf([1,Prand([1,2,1.5]),1,0.5],inf), \amp, 0.2, \stretmch, 0.5, \freqAC, 2, \freqBC, -16).play(quant:4)[m
+[31m-Pbindef(\kik, \dur, 1/7, \freqAC,8, \freqBC,-30)[m
+[32m+[m[32mPbindef(\kik, \dur, 1/5, \freqAC,8, \freqBC,-30)[m
+ Pbindef(\kik).stop.clear[m
+ [m
+ //////////////////////////////////////////////////////////////////////////[m
+
+[33mcommit 149f378bc14c9534e855aa21d62e3a8d158c0e10[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: pierrepierrepierre <pierre.signolat@gmail.com>
+Date:   Mon Oct 16 09:24:14 2017 +0200
+
+    test
+
+[1mdiff --git a/gliss.scd b/gliss.scd[m
+[1mindex 8c7f9af..3bf80b2 100644[m
+[1m--- a/gliss.scd[m
+[1m+++ b/gliss.scd[m
+[36m@@ -1,6 +1,6 @@[m
+ // GLISSADES //[m
+ s.boot;[m
+[31m-s.quit;[m
+[32m+[m
+ [m
+ (/* VU METRE & FREQSCOPE */ w = Window.new("Levels");w.visible = true; r.free; r = ServerMeterView.new(s,w,0@0,2,2);[m
+ f.free; f = FreqScope.new(800,600,0,server:s); f.window.front;)[m
+
+[33mcommit b286f59c6efe247ebdfd8e4d97e6832172cd45fb[m
+Author: Pierre Pierre Pierre <pierre.signolat@gmail.com>
+Date:   Mon Oct 16 09:20:39 2017 +0200
+
+    Upload fichiers SC
+
+[1mdiff --git a/bandes.scd b/bandes.scd[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f520477[m
+[1m--- /dev/null[m
+[1m+++ b/bandes.scd[m
+[36m@@ -0,0 +1,66 @@[m
+[32m+[m[32ms.boot;[m
+[32m+[m
+[32m+[m[32m// Charger les bandes[m
+[32m+[m[32m(a = Buffer.read(s,[m
+[32m+[m	[32m"D:/Musique/Mes sons/Enregistrements divers/LS100754 - 5min Fernao Magalhes.WAV"[m
+[32m+[m	[32m,action:{(">> A : Buffer"+a.bufnum+":"+ a.numFrames + "frames").postln};[m
+[32m+[m[32m); // remember to free the buffer later.[m
+[32m+[m
+[32m+[m[32mb = Buffer.read(s,[m
+[32m+[m	[32m"D:/Musique/Mes sons/Enregistrements divers/fernao magalhes/LS100757 - Chantier Nocturne - fernao magalhes 2017-07.WAV"[m
+[32m+[m	[32m,action:{(">> B : Buffer"+a.bufnum+":"+ b.numFrames + "frames").postln};[m
+[32m+[m[32m); // remember to free the buffer later.[m
+[32m+[m[32m)[m
+[32m+[m[32ma.get[m
+[32m+[m
+[32m+[m[32m([m
+[32m+[m[32mSynthDef("playbuf",{[m
+[32m+[m	[32marg buf=a.bufnum,buffoffset,startPosLag=0, susLag=0,[m
+[32m+[m	[32matt=0.0001, rel=0.0001, attC=0, relC=0,[m
+[32m+[m	[32mpanLag=0,bwLag=0,ampLag=0, out=0, rateLag=0,freqLag=0,loop=0;[m
+[32m+[m
+[32m+[m	[32mvar pan = NamedControl.kr(\pan,0,panLag);[m
+[32m+[m	[32mvar rate = NamedControl.kr(\rate,1,rateLag);[m
+[32m+[m	[32mvar sus = NamedControl.kr(\sus,1.0,susLag);[m
+[32m+[m	[32mvar startPos = NamedControl.kr(\startPos,0,startPosLag);[m
+[32m+[m	[32mvar freq = NamedControl.kr(\freq,2000,freqLag);[m
+[32m+[m	[32mvar bw = NamedControl.kr(\bw,20,bwLag);[m
+[32m+[m	[32mvar amp = NamedControl.kr(\amp,0.2,ampLag);[m
+[32m+[m	[32mvar sig, env;[m
+[32m+[m
+[32m+[m	[32menv= Env([0,1,1,0],[att,sus,rel],[attC,0,relC]).kr(2) * amp;[m
+[32m+[m	[32msig = PlayBuf.ar(2, buf, BufRateScale.kr(buf)*rate,1, BufFrames.ir(buf)*(startPos),loop);[m
+[32m+[m	[32msig = BBandPass.ar(sig,freq,bw);[m
+[32m+[m	[32mOut.ar(out,	Mix.new([ Pan2.ar(sig,pan,env)]));[m
+[32m+[m[32m}).add;[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32m~play.free; ~play = Synth(\playbuf,[\buf,b,\startPos,1.0.rand,\amp,0.4,\dur,500,\att,1,\sus,499,\freq,1600.rand,\bw,0.5,\freqLag,60,\bwLag,60, \out,0, \loop, 1]); ~play.run(true);[m
+[32m+[m[32m(~play.set([m
+[32m+[m	[32m\freq, 5600[m
+[32m+[m	[32m,\freqLag,30[m
+[32m+[m	[32m,\bw,0.001[m
+[32m+[m	[32m,\bwLag,100[m
+[32m+[m	[32m,\rate,0.6[m
+[32m+[m	[32m,\rateLag,30[m
+[32m+[m[32m))[m
+[32m+[m[32m~play.set(\amp, 1,\out, ~compIn.index)[m
+[32m+[m[32m~play.set(\ampLag,10, \amp,0);[m
+[32m+[m[32m~play.free[m
+[32m+[m
+[32m+[m[32m~hit.do{arg item; item.free};[m
+[32m+[m[32m~hit = {arg i; Synth(\playbuf,[\startPos,1.0.rand,\loop,0,\dur,[1,1.5,2.5,0.25,0.75][i],\sus,2.0.rand,\amp,0.6,\att,0.001,\rel,0.13,\attC,12,\relC,-3])}!2[m
+[32m+[m[32m~hit.do{arg item, i; item.set(\dur,[1,1.5,2.5,3.25,0.75][i])}[m
+[32m+[m[32m~hit.do{arg item, i; item.set(\startPos, 1.0.rand)}[m
+[32m+[m[32m~hit[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\helico,\instrument,\playbuf,\startPos,Pstutter(24*Pwhite(20,50),Pwhite(0,1.0)),\att,0.1,\rel,0.3,\dur,Pn(Pshuf([1/8,1/16,1/16,1/8,1/4,1/8].sputter(0.75,8)),inf),\attC,12,\relC,-3,\sus,Pexprand(0.5,0),\amp,0.2).play[m
+[32m+[m[32mPbindef(\helico,\relC,3, \amp,0.2)[m
+[32m+[m[32mPbindef(\helico,\stretch, 1)[m
+[32m+[m[32mPbindef(\helico).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\sur,\instrument,\playbuf,\startPos,Pstutter(24*Pwhite(20,50),Pwhite(0,1.0)),\sus,0,\att,0.1,\rel,0.5,\dur,Prand([1/4,1/3,2/4,3/4,2/3,1,4/3,5/4,6/4,7/4,7/3],inf),\attC,30,\relC,-3,\amp,0.3,\rate,1).play[m
+[32m+[m[32mPbindef(\sur,\dur,Pseq([Pgeom(0.1,1.01,300),Pseq([4],inf)],1),\sus,(Pkey(\dur)),\att,0,\rel,0,\startPos,Pstutter(Pwhite(1,8),Pwhite(0,1.0)));[m
+[32m+[m[32mPbindef(\sur, \amp, 0.01)[m
+[32m+[m[32mPbindef(\sur).stop.clear[m
+[1mdiff --git a/compresseur.scd b/compresseur.scd[m
+[1mnew file mode 100644[m
+[1mindex 0000000..26170f6[m
+[1m--- /dev/null[m
+[1m+++ b/compresseur.scd[m
+[36m@@ -0,0 +1,45 @@[m
+[32m+[m[32m// COMPRESSEUR[m
+[32m+[m[32m([m
+[32m+[m[32m~compIn = Bus.audio(s,2);[m
+[32m+[m[32m~compCtrl = Bus.audio(s,2);[m
+[32m+[m[32m~compOut = Bus.audio(s,2);[m
+[32m+[m[32m)[m
+[32m+[m[32m~compIn.scope[m
+[32m+[m[32m([m
+[32m+[m[32mSynthDef("compresseur",{[m
+[32m+[m	[32marg out = 0, in = ~compIn.index, ctrl = ~compCtrl.index,[m
+[32m+[m	[32mthresh = 0.5, slopeBelow = 1, slopeAbove = 0.5, clampT = 0.01, rel = 0.01, amp = 0.5;[m
+[32m+[m	[32mvar sig, control, compr;[m
+[32m+[m	[32msig = In.ar(in,2);[m
+[32m+[m	[32mcontrol = In.ar(ctrl, 2);[m
+[32m+[m	[32mcompr = Compander.ar([m
+[32m+[m		[32msig,[m
+[32m+[m		[32mcontrol,[m
+[32m+[m		[32mthresh: thresh,[m
+[32m+[m		[32mslopeBelow: slopeBelow,[m
+[32m+[m		[32mslopeAbove: slopeAbove,[m
+[32m+[m		[32mclampTime: clampT,[m
+[32m+[m		[32mrelaxTime: rel[m
+[32m+[m	[32m);[m
+[32m+[m	[32mOut.ar(out, compr * amp);[m
+[32m+[m[32m}).add;[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m
+[32m+[m[32mx = Synth.new("compresseur")[m
+[32m+[m[32mx.set(\in, ~compIn.index, \thresh, 1, \slopeAbove, 1, \rel, 0.1)[m
+[32m+[m[32mx.free[m
+[32m+[m
+[32m+[m
+[32m+[m[32m// SIDE CHAIN // à faire <<< ajouter le truc en tête du serveur pour gérer instanciation dans ordre différent[m
+[32m+[m[32my = Synth.new("compresseur",[\in, ~compIn.index, \ctrl, ~compCtrl.index])[m
+[32m+[m[32my.set(\thresh, 0.01,\amp, 1, \slopeBelow, 1, \slopeAbove,0.005, \rel, 0.05, \clampT, 0.001)[m
+[32m+[m[32my.set(\rel, 0.25, \clampT, 0.5, \amp, 1,\slopeAbove,0.1)[m
+[32m+[m[32my.free[m
+[32m+[m
+[32m+[m[32m// Son pour test[m
+[32m+[m[32mu = Synth(\droneSine,[\amp, 0.2, \freq, 190, \out, ~compIn.index])[m
+[32m+[m[32mu.set()[m
+[32m+[m[32mu.free[m
+[32m+[m
+[32m+[m[32m~compIn.scope[m
+\ No newline at end of file[m
+[1mdiff --git a/gliss.scd b/gliss.scd[m
+[1mnew file mode 100644[m
+[1mindex 0000000..8c7f9af[m
+[1m--- /dev/null[m
+[1m+++ b/gliss.scd[m
+[36m@@ -0,0 +1,91 @@[m
+[32m+[m[32m// GLISSADES //[m
+[32m+[m[32ms.boot;[m
+[32m+[m[32ms.quit;[m
+[32m+[m
+[32m+[m[32m(/* VU METRE & FREQSCOPE */ w = Window.new("Levels");w.visible = true; r.free; r = ServerMeterView.new(s,w,0@0,2,2);[m
+[32m+[m[32mf.free; f = FreqScope.new(800,600,0,server:s); f.window.front;)[m
+[32m+[m
+[32m+[m[32m([m
+[32m+[m[32m// Sine[m
+[32m+[m[32mSynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out=0 ;[m
+[32m+[m	[32mvar freq = NamedControl.kr(\freq,440,freqLag);[m
+[32m+[m	[32mvar pan = NamedControl.kr(\pan,0,panLag);[m
+[32m+[m	[32mvar amp = NamedControl.kr(\amp,0.05,ampLag);[m
+[32m+[m	[32mvar pano = FSinOsc.kr(panFreq,0,panMod,pan);[m
+[32m+[m	[32mOut.ar(out,Pan2.ar(SinOsc.ar(freq),pano, amp));[m
+[32m+[m[32m},[10,0,0,10,10]).add;[m
+[32m+[m
+[32m+[m[32m~info = {arg group; group.size.do({arg i; ~sines[i].get(\freq, {arg val; (i+"").post; val.postln;})})}[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/* BATCH MAKE */[m
+[32m+[m[32m( ~sines.do({arg i; i.free}); ~sines = 8.collect({arg i; Synth(\gliss,[[m
+[32m+[m	[32m\freq,rrand(2060,5500).postln[m
+[32m+[m	[32m,\freqLag,0.025[m
+[32m+[m	[32m,\panLag,20[m
+[32m+[m	[32m,\pan,1.0.bilinrand[m
+[32m+[m	[32m,\amp,0[m
+[32m+[m	[32m,\ampLag,0.1[m
+[32m+[m[32m])}))[m
+[32m+[m
+[32m+[m[32m/* BATCH CONTROL -- Entrée */[m
+[32m+[m[32m( ~sines[m
+[32m+[m[32m.do({ arg i; i.set(\dum,0[m
+[32m+[m	[32m,\freq,exprand(140,620.0)[m
+[32m+[m	[32m,\freqLag,0.05[m
+[32m+[m	[32m,\pan,1.0.bilinrand[m
+[32m+[m	[32m,\panMod,0[m
+[32m+[m	[32m,\amp,0.03[m
+[32m+[m	[32m,\ampLag,10[m
+[32m+[m[32m)});)[m
+[32m+[m
+[32m+[m[32m/* CONTROL AU HASARD -- Panoramique modulation */[m
+[32m+[m[32m~sines[~sines.size.rand.post].set(\pan, 0, \panMod, 1.0.rand, \panFreq, 0.5.rand.postln)[m
+[32m+[m
+[32m+[m[32m/* CONTROL au HASARD -- Freqs */[m
+[32m+[m[32m~sines[~sines.size.rand.post].set(\freq, exprand(460, 1210), \freqLag, 350, \amp, 0.025, \ampLag, 0.01)[m
+[32m+[m
+[32m+[m[32m /*CONTROL PRECIS */[m
+[32m+[m[32m~info.value(~sines)[m
+[32m+[m
+[32m+[m[32m(~sines[5[m
+[32m+[m[32m].set([m
+[32m+[m	[32m\freq,800 + 10.0.rand[m
+[32m+[m	[32m,\freqLag, 500.0[m
+[32m+[m	[32m// ,\amp, 0.025[m
+[32m+[m	[32m// ,\ampLag, 0.1[m
+[32m+[m[32m))[m
+[32m+[m
+[32m+[m[32m/* BATCH CONTROL -- Freqs */[m
+[32m+[m[32m( ~sines[m
+[32m+[m[32m.do({ arg i; i.set([m
+[32m+[m	[32m\freq,exprand(4000,16020.0)[m
+[32m+[m	[32m,\freqLag,400[m
+[32m+[m	[32m// ,\amp, 0[m
+[32m+[m	[32m// ,\ampLag,10[m
+[32m+[m	[32m// \out, ~compIn.index[m
+[32m+[m[32m)});)[m
+[32m+[m
+[32m+[m[32m/* LOOP CONTROL -- Freqs */[m
+[32m+[m[32m(r.free; r = Routine({ loop {~sines.do({arg i; i.post; i.set( // Module lentement[m
+[32m+[m	[32m\freq, exprand(1960,32690).postln[m
+[32m+[m	[32m,\freqLag, 1000[m
+[32m+[m	[32m, \amp, 0[m
+[32m+[m	[32m, \ampLag,1000.0.rand[m
+[32m+[m	[32m)}); 1000[m
+[32m+[m		[32m.wait;}[m
+[32m+[m[32m}).play)[m
+[32m+[m[32mr.stop[m
+[32m+[m
+[32m+[m[32m~sines.do({arg item; item.set(\amp,0); item.free})[m
+[32m+[m
+[32m+[m[32m~sines.do({arg i; i.set(\ampLag, rrand(100,630), \amp, 0.01)})[m
+[32m+[m[32m(s.free; s = Routine({ loop{ ~sines.scramble.do({arg i; i.set(\amp, [0.1,0].choose); 0.25.wait}); 1.wait }}).play )[m
+[32m+[m
+[32m+[m[32m/////////////////////////////////////////[m
+[32m+[m
+[32m+[m[32m/* ADD */[m
+[32m+[m[32m~sines = ~sines.addAll(Synth(\gliss, [\amp, 0.01,\freq, 4400.0.rand]))[m
+[32m+[m
+[32m+[m[32m~sines[1].set(\freq,55,\amp, 0.1)[m
+\ No newline at end of file[m
+[1mdiff --git a/patterns.scd b/patterns.scd[m
+[1mnew file mode 100644[m
+[1mindex 0000000..92b36b8[m
+[1m--- /dev/null[m
+[1m+++ b/patterns.scd[m
+[36m@@ -0,0 +1,728 @@[m
+[32m+[m[32ms.boot;[m
+[32m+[m[32ms.quit;[m
+[32m+[m[32mServerBoot.removeAll;[m
+[32m+[m[32mServerTree.removeAll;[m
+[32m+[m[32mServerQuit.removeAll;[m
+[32m+[m
+[32m+[m[32m(/* VU METRE & FREQSCOPE */ w.free; w = Window.new("Levels");w.visible = true; r.free; r = ServerMeterView.new(s,w,0@0,2,2);[m
+[32m+[m[32mf.free; f = FreqScope.new(300,300,0,server:s); f.window.front;)[m
+[32m+[m
+[32m+[m[32m([m
+[32m+[m[32m~onBeat = {arg d;  TempoClock.default.nextBar - TempoClock.default.beats == d};[m
+[32m+[m
+[32m+[m[32m~noKick = {arg t; (((~lastKickEvent[\amp] < 0.1) && (~lastKickEvent[\dur] >= (t/2))) || (~lastKickEvent[\dur] >= t))};[m
+[32m+[m
+[32m+[m[32m// Sine[m
+[32m+[m[32mSynthDef("sine",{arg freq=400,amp=0.35,pan=0,att=0.001,rel=0.005,phase=0,sus=0,out=0;[m
+[32m+[m	[32mvar env = Env([0,1,1,0],[att,sus,rel]).ar(2);[m
+[32m+[m	[32mOut.ar(out,Pan2.ar(SinOsc.ar(freq,phase) * env,pan, amp));[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32m// Sine[m
+[32m+[m[32mSynthDef("droneSine",{arg freq = 440, amp=0.1, pan=0,out=0;[m
+[32m+[m	[32mOut.ar(out,Pan2.ar(SinOsc.ar(freq),pan, amp));[m
+[32m+[m[32m},15).add;[m
+[32m+[m
+[32m+[m[32m// Gendy[m
+[32m+[m
+[32m+[m[32m// Snare[m
+[32m+[m[32mSynthDef("snare", {arg out=0,amp=1,fq=320, hifreq=1020, noiseDecay=0.002,pan=0,[m
+[32m+[m	[32matt=0.001,dec=0.01, rel=0.1,attC=(0),decC=0,relC=(-12),sinDel=0,[m
+[32m+[m	[32mnoiseAtt= 0.002,noiseRel= 0.3, noiseAttC=(\wel),noiseRelC=(\wel),noiseDel=0,[m
+[32m+[m	[32mcrash = 0.1;[m
+[32m+[m	[32mvar sig, sin, env, noise, noiseEnv,harms, noiseAmp;[m
+[32m+[m	[32mnoiseAmp = amp/1.5;[m
+[32m+[m	[32menv = Env([0,0,1,0.5,0],[sinDel,att,dec,rel],[0,attC,decC,relC]).kr();[m
+[32m+[m	[32mnoiseEnv = Env([0,0,1,0],[noiseDel, noiseAtt,noiseRel],[0,noiseAttC,noiseRelC]).kr();[m
+[32m+[m	[32mharms = [0.9,1,1.1];[m
+[32m+[m	[32msin = Mix.fill(harms.size, {arg i; LFSaw.ar(fq*harms[i],pi/2,1/((i*0.5)+1.5));});[m
+[32m+[m	[32msin = sin * env * amp;[m
+[32m+[m	[32mnoise = Mix.ar([ClipNoise.ar(0.2), Dust2.ar(fq*50,0)]);[m
+[32m+[m	[32mnoise = Ringz.ar(noise, [fq, hifreq], noiseDecay);[m
+[32m+[m	[32mnoise = noise * noiseEnv * noiseAmp;[m
+[32m+[m	[32msig = Mix.new([sin,noise]);[m
+[32m+[m	[32mOut.ar(out,Pan2.ar(sig,pan));[m
+[32m+[m	[32mDetectSilence.ar(sig, 0.00001, crash, 2);[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32m// Noise[m
+[32m+[m[32mSynthDef("noise", {arg out=0,bw=1.5, amp=1, pan=0,[m
+[32m+[m	[32matt=0.001, rel=0.5, sus=0.02, attC=20,relC=(-6),[m
+[32m+[m	[32mfreqA=30000, freqB=80, freqC=3500, attSweep=0.1, relSweep=0.15, attSweepC=0, relSweepC=0;[m
+[32m+[m	[32mvar sig, env, sweep;[m
+[32m+[m	[32menv = Env([0,1,1,0],[att,sus,rel],[attC,0,relC]).kr(2);[m
+[32m+[m	[32msweep = Env([freqA, freqB, freqC], [attSweep, relSweep], [attSweepC,relSweepC]).kr();[m
+[32m+[m	[32msig = BBandPass.ar(PinkNoise.ar(),sweep,bw * env,1/bw);[m
+[32m+[m	[32mOut.ar(out,Pan2.ar(sig * env,pan, amp));[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32mSynthDef("noiseDwn", {arg out, sus=0.5, amp=0.2, panFreq=0, panMod=1;[m
+[32m+[m	[32mvar sig, env;[m
+[32m+[m	[32menv = XLine.kr(amp, 0.0001, sus, 1,0, 2);[m
+[32m+[m	[32msig = PinkNoise.ar({LFNoise1.kr(panFreq,panMod,0.5)}!2);[m
+[32m+[m	[32mOut.ar(out, sig * env);[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32mSynthDef("noiseUp",[m
+[32m+[m	[32m{arg out, sus=0.5, amp=0.2, panFreq=0, panMod=1;[m
+[32m+[m	[32mvar sig, env;[m
+[32m+[m	[32menv = XLine.kr(0.0001, amp, sus, 1,0,2);[m
+[32m+[m	[32msig = PinkNoise.ar({LFNoise1.kr(panFreq,panMod,0.5)}!2);[m
+[32m+[m	[32mOut.ar(out, sig * env);[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32mSynthDef("clap",{[m
+[32m+[m	[32marg out=0, att=0.001, rel=0.5, relC = -12, pan=0, amp=0.2, freq=900, del=0.015, rq=0.2;[m
+[32m+[m	[32mvar sig, env, enva, envb, envc;[m
+[32m+[m	[32menv = Env.perc(att, rel, amp, relC).kr(2);[m
+[32m+[m	[32menva = DelayN.ar(env,0.2,del*2);[m
+[32m+[m	[32menvb = DelayN.ar(env,0.2,del);[m
+[32m+[m	[32menvc = DelayN.ar(env,0.2,del*3);[m
+[32m+[m	[32msig = Mix.fill(6,{arg i; var delay;[m
+[32m+[m		[32mdelay = DelayN.ar(env, 0.2, rrand(0,del));[m
+[32m+[m		[32mBPF.ar(ClipNoise.ar(), freq * Rand((i*0.25) + 1, (i*0.25) + 1.1), rq, 1 + (1/rq) * (1/6)) * delay;[m
+[32m+[m	[32m});[m
+[32m+[m	[32msig = LinSelectX.ar(Rand(0,2), sig)!2;[m
+[32m+[m	[32mOut.ar(out, sig);[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32m// Blip[m
+[32m+[m[32mSynthDef("blip",{arg out=0,freq=60,nharm=3,amp=0.5,pan=0,att=0.003,rel=0.002,phase=0,sus=0;[m
+[32m+[m	[32mvar env = Env([0,1,1,0],[att,sus,rel]).ar(2);[m
+[32m+[m	[32m// panoramic = pan;[m
+[32m+[m	[32mOut.ar(out,Pan2.ar(Blip.ar(freq,nharm) * env,pan, amp));[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32mSynthDef("kick", {arg out=0,amp=0.5,pan=0,att=0.02,rel=0.7,attC=1, relC=(-12),nharm=2,[m
+[32m+[m	[32mfreqA=800,freqB=90,freqC=60,freqADur=0.02,freqBDur=0.5,freqAC=(-6),freqBC=(-3);[m
+[32m+[m	[32mvar env = Env([0,1,0],[att,rel],[attC,relC]).ar(2);[m
+[32m+[m	[32mvar sweep = Env([freqA,freqB,freqC],[freqADur,freqBDur],[freqAC,freqBC]).ar;[m
+[32m+[m	[32mvar sig = Mix.fill(2, {arg i; Blip.ar(sweep * (1/(i+1)),nharm,(1/(i+1)))});[m
+[32m+[m	[32msig = sig * env * amp;[m
+[32m+[m	[32mOut.ar(out,Pan2.ar(sig,pan));[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32mSynthDef("snaredel", {[m
+[32m+[m	[32marg out=0, amp=0.5, att=0.002,sus=0.01, rel=0.001,[m
+[32m+[m	[32mattC=0,relC=(-24),[m
+[32m+[m	[32mpan=0, ff=1200, deldur=0.5, delvit=0.3,delfq=0.5,[m
+[32m+[m	[32mcrash=2;[m
+[32m+[m	[32mvar env, sig, envsin, sin,envdel;[m
+[32m+[m	[32mvar rs = 0.0005, fqs = ff * [0.366, 1, 1.683, 1.333];[m
+[32m+[m
+[32m+[m	[32menv = EnvGen.ar(Env([0,1,1,0],[att,sus,rel],[attC,0,relC]));[m
+[32m+[m	[32menvsin = EnvGen.ar(Env([0,1,0],[att,rel*0.01],[attC,relC - 30]));[m
+[32m+[m	[32menvdel = Env([0,1,1,0],[att,sus,rel],[24,0,24]).ar(2);[m
+[32m+[m	[32msig = Mix.fill(fqs.size, {arg i;[m
+[32m+[m		[32mBHiPass.ar([m
+[32m+[m			[32mClipNoise.ar(0.5),[m
+[32m+[m			[32mfqs[i],[m
+[32m+[m			[32mrs*(fqs),[m
+[32m+[m			[32mfqs.size/((i+1*6))[m
+[32m+[m		[32m);[m
+[32m+[m	[32m});[m
+[32m+[m	[32msin = Mix.fill(fqs.size, {arg i; SinOsc.ar(fqs[i],0,fqs.size/((i+1*6))) });[m
+[32m+[m	[32msig = (sig * env * 0.5) + (sin * envsin * 1);[m
+[32m+[m	[32msig = sig * env;[m
+[32m+[m	[32msig = sig + CombN.ar(sig,delvit+0.1,LFNoise1.kr(delfq,delvit,delvit+0.01),deldur); // COMB DELAY[m
+[32m+[m	[32m// sig = sig * envdel;[m
+[32m+[m	[32msig = Pan2.ar(sig,pan);[m
+[32m+[m	[32msig = sig * amp;[m
+[32m+[m	[32mDetectSilence.ar(sig, time:crash, doneAction:2);[m
+[32m+[m	[32mOut.ar(out,sig);[m
+[32m+[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m
+[32m+[m[32mSynthDef("formant", { arg out=0,freq=60,addFreq=700,amp=0.5,[m
+[32m+[m	[32matt=0.1,rel=0.1,sus=0,attC=0,relC=0,[m
+[32m+[m	[32mbwfreq=880,lenmul=2,pan=0,panrand=1;[m
+[32m+[m	[32mvar len, env, sound, sfreq = freq, efreq = freq+(addFreq);[m
+[32m+[m	[32mlen = (att+sus+rel)*lenmul;[m
+[32m+[m	[32menv = Env([0,1,1,0],[att,sus,rel],[attC,0,relC]).kr(2);[m
+[32m+[m	[32msfreq = XLine.kr(sfreq,efreq,len); /* XLine pour le formant */[m
+[32m+[m	[32mefreq = XLine.kr(efreq,sfreq,len); /* XLine pour le formant */[m
+[32m+[m	[32msound = Formant.ar(sfreq,efreq,bwfreq);[m
+[32m+[m	[32msound = sound * env * amp;[m
+[32m+[m	[32msound =  Pan2.ar(sound ,Lag.kr(LFNoise1.kr(1.0),2,panrand,pan));[m
+[32m+[m	[32mOut.ar(out, sound);[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32mSynthDef("glob", {arg att=0.001, sus=0, rel=0.1, relC=(-3), attC=3,argA=10, argB=0.2,argC=400, ampLag=2,out=0,panFreq=10;[m
+[32m+[m	[32mvar amp = NamedControl.kr(\amp,0.2,ampLag);[m
+[32m+[m	[32mvar env = Env([0,1,1,0], [att, sus, rel], [attC,0,relC]).kr(2);[m
+[32m+[m	[32mvar sig =[m
+[32m+[m	[32mFormant.ar([m
+[32m+[m		[32m(LFNoise1.kr(LFNoise1.kr(0.1,1,0.5) * argA,1) * 140).scaleneg(argA),[m
+[32m+[m		[32m(LFNoise1.kr(LFNoise1.kr(0.02,0.5,0.5) * argB ,1,1 )*800).scaleneg(argB),[m
+[32m+[m		[32m(LFNoise1.kr(1,0.5,1) * argC),[m
+[32m+[m		[32m(Gendy1.kr([m
+[32m+[m			[32m/*ampdist*/ 2[m
+[32m+[m			[32m,/*durdist*/ 0.1[m
+[32m+[m			[32m, /*adparam*/ 0.001[m
+[32m+[m			[32m, /*ddparam*/ 0.99[m
+[32m+[m			[32m,/*minfre*/ 0.0001[m
+[32m+[m			[32m,/*maxfreq*/ 2[m
+[32m+[m			[32m,/*ampscale*/ 0.000001[m
+[32m+[m			[32m,/*durscale*/ 0.01[m
+[32m+[m			[32m,/*initCPs*/ 12[m
+[32m+[m			[32m,/*knum*/ 1[m
+[32m+[m			[32m,/*mul*/ 0.5)[m
+[32m+[m	[32m));[m
+[32m+[m	[32msig = Pan2.ar(sig, LFNoise1.kr(LFNoise1.kr(panFreq,100,100)),amp*env);[m
+[32m+[m	[32mOut.ar(out,sig);[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32mSynthDef("autoglob", {arg argA=10, argB=0.2,argC=400, ampLag=2,out=0,panFreq=10;[m
+[32m+[m	[32mvar amp = NamedControl.kr(\amp,0.2,ampLag);[m
+[32m+[m	[32mvar sig =[m
+[32m+[m	[32mFormant.ar([m
+[32m+[m		[32m(LFNoise1.kr(LFNoise1.kr(0.1,1,0.5) * argA,1) * 140).scaleneg(argA),[m
+[32m+[m		[32m(LFNoise1.kr(LFNoise1.kr(0.02,0.5,0.5) * argB ,1,1 )*800).scaleneg(argB),[m
+[32m+[m		[32m(LFNoise1.kr(1,0.5,1) * argC),[m
+[32m+[m		[32m(Gendy1.kr([m
+[32m+[m			[32m/*ampdist*/ 2[m
+[32m+[m			[32m,/*durdist*/ 0.1[m
+[32m+[m			[32m, /*adparam*/ 0.001[m
+[32m+[m			[32m, /*ddparam*/ 0.99[m
+[32m+[m			[32m,/*minfre*/ 0.0001[m
+[32m+[m			[32m,/*maxfreq*/ 2[m
+[32m+[m			[32m,/*ampscale*/ 0.000001[m
+[32m+[m			[32m,/*durscale*/ 0.01[m
+[32m+[m			[32m,/*initCPs*/ 12[m
+[32m+[m			[32m,/*knum*/ 1[m
+[32m+[m			[32m,/*mul*/ 0.5)[m
+[32m+[m	[32m));[m
+[32m+[m	[32msig = Pan2.ar(sig, LFNoise1.kr(LFNoise1.kr(panFreq,100,100)),amp);[m
+[32m+[m	[32mOut.ar(out,sig);[m
+[32m+[m[32m}).add;[m
+[32m+[m
+[32m+[m[32mSynthDef("autoformant", {arg fund=80,form=300,bw=600,ampLag=2,out=0,speed1=0.1, speed2=0.1,pres=0.5;[m
+[32m+[m	[32mvar amp = NamedControl.kr(\amp,0.2,ampLag);[m
+[32m+[m	[32mvar sig, fundfq, formfq, bwfq, randy;[m
+[32m+[m
+[32m+[m	[32mrandy = [LFNoise0.kr(0.5*speed2,100,100)/100,LFNoise0.kr(0.2*speed2,100,100)/100,LFNoise0.kr(0.75*speed2,100,100)/100,SinOsc.kr(0.5*speed2,pi/2).scaleneg(0),SinOsc.kr(0.33*speed2,pi/4).scaleneg(0),Pulse.kr(0.1*speed2,pi/5).scaleneg(0)];[m
+[32m+[m
+[32m+[m	[32mfundfq = SelectXFocus.kr(LFDNoise1.kr(LFDNoise1.kr(0.5,1,1)*speed1,0.5,0.5) * randy.size,	randy,randy.size/(pres*10),true) * (fund*2)	;[m
+[32m+[m	[32mformfq = SelectXFocus.kr(LFDNoise1.kr(LFDNoise1.kr(0.5,1,1)*speed1,0.5,0.5) * randy.size,randy,randy.size/(pres*10),true) * (form*2)	;[m
+[32m+[m	[32mbwfq = LFDNoise1.kr(LFDNoise1.kr(0.5,1,1)*speed1,bw,bw);[m
+[32m+[m	[32msig = Formant.ar(fundfq	,formfq	,bwfq);[m
+[32m+[m	[32msig = Pan2.ar(sig, LFNoise1.kr(LFNoise1.kr(0.5*speed1).range(0.1,10)),amp);[m
+[32m+[m	[32mOut.ar(out,sig);[m
+[32m+[m[32m}).add;[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mt = {LFNoise1.kr(LFNoise1.kr(1,100,100)) }.plot(4)[m
+[32m+[m
+[32m+[m[32m// TESTING[m
+[32m+[m[32mx.free; x=[];[m
+[32m+[m[32mx = x.add(Synth.new(\autoglob,[\argA,6,\argB,12,\amp,0.8,\panFreq,1]))[m
+[32m+[m[32mx[0].free[m
+[32m+[m[32mSynth.new(\blip);[m
+[32m+[m[32mPbindef(\hptest, \instrument, \kick, \dur, 2, \amp, 0.5).play[m
+[32m+[m
+[32m+[m[32m// PLAYING[m
+[32m+[m[32mTempoClock.tempo = 60/ 60[m
+[32m+[m[32mTempoClock.schedAbs(TempoClock, TempoClock.nextBar, {TempoClock.beatsPerBar_(4)})[m
+[32m+[m
+[32m+[m
+[32m+[m[32m// APRES SINES //[m
+[32m+[m[32m// Lance les sines immobiles[m
+[32m+[m[32m// ..[m
+[32m+[m[32m// Démarre DUBBYSNARE (dur:2)[m
+[32m+[m[32m// .....[m
+[32m+[m[32m// Lance un PLAYBUF[m
+[32m+[m[32m// Démarre l'HELICO de bande puis le VENT[m
+[32m+[m[32m// ..[m
+[32m+[m[32m// Fait bouger doucement 2,3 SINES[m
+[32m+[m[32m// Fait bouger toutes les SINES vers le haut[m
+[32m+[m[32m// Démarre le HEARTBEAT et le WOUIN[m
+[32m+[m[32m// Augmente la variation de DUBBYSNARE et ajoute lui un coup[m
+[32m+[m[32m// Divise DUBBYSNARE et mets le tempo à 0.05[m
+[32m+[m[32mPbindef[m
+[32m+[m[32m// PUMP[m
+[32m+[m[32mPbindef(\testkick, \instrument, \kick, \dur, 0.6, \nharm, 2).play(quant:4)[m
+[32m+[m[32mPbindef(\testkick).stop.clear[m
+[32m+[m[32mPbindef(\mimi, \instrument, \snare).play[m
+[32m+[m[32mSynth("snare").play[m
+[32m+[m[32mPbindef(\mimi,\amp,0.5)[m
+[32m+[m[32mPbindef(\mimi).stop.clear[m
+[32m+[m[32mPbindef(\testsnare, \noiseRelC,-10, \amp,0.1)[m
+[32m+[m[32mPbindef(\snare, \out, ~compIn.index)[m
+[32m+[m[32mPbindef(\snark, \out, ~compIn.index)[m
+[32m+[m[32m( ~sines[m
+[32m+[m[32m.do({ arg i; i.set(\out, ~compIn.index[m
+[32m+[m[32m)});)[m
+[32m+[m
+[32m+[m[32m~beatseq = [1/6,1/4,2/6,1/4][m
+[32m+[m
+[32m+[m[32m// Intro[m
+[32m+[m[32mPbindef(\intro, \instrument, \sine, \freq, Pexprand(180, 220), \amp, Pwhite(0.005,0.005), \pan, Pwhite(-0.5, 0.5), \dur, Pwhite(0.5,1.5) * Pwhite(0.95, 1.05) * 2).play[m
+[32m+[m[32mPbindef(\intro, \stretch, Pseq([1,0.5, 0.2, 0.6, 4, 6],inf))[m
+[32m+[m[32mPbindef(\intro).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\introb, \instrument, \glob, \sus, Pwhite(0,0.25), \rel, Pwhite(0.01, 0.05), \dur, 2 + Pwhite(-0.05,0.05)).play[m
+[32m+[m[32mPbindef(\introb, \dur, 0.1)[m
+[32m+[m[32mPbindef(\introb).stop.clear[m
+[32m+[m
+[32m+[m[32mSynth([\noiseDwn, \noiseUp].choose, [\sus, 1.0.rand, \rel, 2.rand, \amp, 0.008])[m
+[32m+[m
+[32m+[m[32mSynth(\sine, [\freq, 600.rand, \amp, 0.05.rand, \pan, rrand(-1, 1.0)])[m
+[32m+[m
+[32m+[m[32mPdef.removeAll[m
+[32m+[m[32m//// PARTY 1[m
+[32m+[m
+[32m+[m[32mPbindef(\dubbysnare,\instrument,\snare,\dur,8,\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.4,\fq,Pwhite(300,310.0),\hifreq,Pwhite(3500,3520)).play(quant:[8,3])[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Pseq([(1/6), (1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20)[m
+[32m+[m[32mPbindef(\heartbeat).collect({|e| ~lastKickEvent = e;}).play(quant:[8,0,0.1])[m
+[32m+[m
+[32m+[m[32m(Pbindef(\vent, \instrument,\noise,\dur, 0.08,\sus, 0.0001,\attSweepC, 20,\bw,Pwhite(0.1,0.5),\amp,0.25, \relC,-20).play;[m
+[32m+[m
+[32m+[m[32mPbindef(\vent2, \instrument,\noise,\dur,0.081,\sus,0,\rel,0.025,\att,0,\bw,0.002,\amp,0.15, \pan, Pwhite(-1.0,1)).play;)[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin,\instrument,\blip,\dur,Pfunc{~lastKickEvent[\dur]},\att,0.001,\rel,Pwhite(0.02,0.0005),\sus,Pkey(\dur)*0.00009,\freq,Pstutter(Pexprand(500,260),Pwhite([400,600,2000],[800,1000,4000])),\amp,0.04, \pan, Pwhite(-0.5,0.5)).play(quant:[1,0])[m
+[32m+[m
+[32m+[m[32mPbindef(\vent, \pan, Pwhite(-0.5,0.5));[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m----- play[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin,\dur,Pfunc{if (0.3.coin) {~lastKickEvent[\dur]} {[1/8, 1/6, 1/12].choose}})[m
+[32m+[m[32mPbindef(\wouin,\dur,Pseq([1/8, 1/6, 1/12], inf))[m
+[32m+[m
+[32m+[m[32m(Pbindef(\heartbeat, \dur,[m
+[32m+[m	[32mPseq([[m
+[32m+[m		[32m(1/6),[m
+[32m+[m		[32mPwrand([ Pseq([1/4, 2/6, 1/4]), Pshuf([Pseq([((2/6)+(1/4)) / 5],5), 1/4])], [0.9,0.1])[m
+[32m+[m		[32m,Pwrand([ 1/4,Pseq([1/4, 1])], [0.9,0.1])[m
+[32m+[m	[32m],inf),[m
+[32m+[m	[32m\amp, 0.8[m
+[32m+[m[32m))[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \amp, Pseq([1, Prand([1, 0])],inf))[m
+[32m+[m
+[32m+[m[32mPbindef(\dubbysnare, \noiseRelC, Pwhite(0,-7))[m
+[32m+[m[32mPbindef(\dubbysnare, \dur, Pwrand([2,1],[0.9,0.1],inf))[m
+[32m+[m
+[32m+[m[32mPbindef(\vent, \sus, Pfunc{ if((~noKick.(2/6)) && (0.3.coin)){rrand(0.07,0.0002)}{0.0001}})[m
+[32m+[m
+[32m+[m[32m(Pbindef(\vent2,[m
+[32m+[m	[32m\sus, Pfunc({ if (~noKick.(2/6)) {0.035} {0}}),[m
+[32m+[m	[32m// \relC, Pfunc({ if (~noKick.(2/6)) {3} {-6}}),[m
+[32m+[m	[32m// \dur, Pfunc({ if (~noKick.(1)) {0.125} {0.081} }),[m
+[32m+[m	[32m// \bw, Pfunc({ if (~noKick.(2) {2} {0.002} )})[m
+[32m+[m[32m).play)[m
+[32m+[m[32mPbindef(\vent2, \bw, 0.02, \dur, 0.5, \sus, 0).play[m
+[32m+[m
+[32m+[m[32mPbindef(\wouin, \sus, Pfunc{ if ((~noKick.(1)) && (0.3.coin)) {rrand(0.01,0.25)} {rrand(0.0005,0.005)}})[m
+[32m+[m[32mPbindef(\wouin, \nharm, Pfunc{ if ((~noKick.(2/6)) && (0.3.coin)) {rrand(3,16)} {2}})[m
+[32m+[m[32mPbindef(\wouin, \rel, Pfunc{ if (~noKick.(2/6) && (0.1.coin)) {(~lastKickEvent[\dur]-0.05).abs} {rrand(0.05,0.0005)}})[m
+[32m+[m[32mPbindef(\wouin, \dur, Pstutter(Pwhite(1,6),Prand([1/8,1/9,1/6,1/12],inf)))[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\dubbysnare,\dur,6,\noiseRel,0.5, \amp, 0.3, \pan,0, \noiseDecay, Pseq([Pseries(0.002,0.001,30)],inf))[m
+[32m+[m[32mPbindef(\dubbysnare).stop.clear;[m
+[32m+[m
+[32m+[m[32mTempoClock.tempo = 0.05[m
+[32m+[m[32mTempoClock.tempo = 1.1[m
+[32m+[m
+[32m+[m[32mPbindef(\wouine,\instrument,\formant,\dur,12,\sus,Pkey(\dur),\freq,Pseq([150,225,262.5,400],inf),\addFreq,Pseq([-20,105,142.5,-180],inf),\amp,Pwhite(0.05,0.15),\lenmul,Pwhite(0.8,1.5),\bwfreq,0).play[m
+[32m+[m[32mPbindef(\wouine, \freq, 60, \addFreq,-20, \lenmul,2,)[m
+[32m+[m[32mPbindef(\wouine).stop.clear[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\baaas, \instrument, \blip, \sus, 1, \freq, (Pwhite(40,45!3)+13), \dur, 4, \amp, 0.2).play(quant:[8,3])[m
+[32m+[m[32mPbindef(\baaas).stop[m
+[32m+[m
+[32m+[m[32mPbindef(\dubbysnare, \noiseRelC,rrand(-4,-12), \dur, Pfunc{ if (~onBeat.(3) && (0.5.coin)) {~lastKickEvent[\dur]} {[1,2,0.5].choose}}, \amp, Pfunc{ if (~noKick.(1/4)){0.25}{if(~onBeat.value(3)){0.25}{0}}}).play(quant:4);[m
+[32m+[m
+[32m+[m[32mPbindef(\heartbeat, \amp, Pseq([1,Pwrand([1,0.5,0],[0.7,0.2,0],3)],inf))[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pwrand([1/6,1/4, Pwhite(1,4,1)],[0.85, 0.1,0.05],inf))[m
+[32m+[m
+[32m+[m[32mPbindef(\vent, \freq, Pstutter(Pwhite(30,200),Pexprand(6000,8000)))[m
+[32m+[m[32mPbindef(\vent, \bw,Pwhite(0.03,3))[m
+[32m+[m
+[32m+[m[32mPbindef(\vent, \relC,Pseq([Pgeom(-20,1.1)]),\att,Pfunc{if (~noKick.(2/6)) {rrand(0.01,0.55)} {0.001}}) // < ++ \att[m
+[32m+[m[32mPbindef(\vent2, \rel, 0.36) // < augmente et va dans l'espace[m
+[32m+[m
+[32m+[m[32mPbindef(\vent).stop.clear;[m
+[32m+[m[32mPbindef(\vent2).stop.clear;[m
+[32m+[m[32mPbindef(\wouin).stop.clear[m
+[32m+[m
+[32m+[m
+[32m+[m[32m// 1st STOP[m
+[32m+[m
+[32m+[m[32mPbindef(\dubbysnare).stop;[m
+[32m+[m[32mPbindef(\heartbeat).stop;[m
+[32m+[m[32mPbindef(\baaas).stop;[m
+[32m+[m[32mPbindef(\vent).stop;[m
+[32m+[m[32mPbindef(\vent2).stop;[m
+[32m+[m[32mPbindef(\wouin).stop;[m
+[32m+[m[32mPbindef(\wouine).stop;[m
+[32m+[m
+[32m+[m[32mPdef.removeAll[m
+[32m+[m
+[32m+[m[32m/////// PARTY 2 : Clubbez moi[m
+[32m+[m[32mPbindef(\heartbeat).[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pwrand([ Pseq([1/6,1/4,2/6,1/4]), 1],[0.9,0.1],inf))[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pwrand([ Pstutter(Pwhite(1,4),Pseq([1/6,1/4,2/6,1/4])), 1],[0.5,0.5],inf))[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pwrand([ Pseq([1/6,1/4,2/6,1/4]), Pseq([1/5],10), 1],[0.8,0.1,0.1],inf))[m
+[32m+[m[32mPbindef(\heartbeat, \dur, Pwrand([1/5, 1/6, 1, 2],[0.5,0.1,0.1,0.1].normalizeSum,inf))[m
+[32m+[m[32mPbindef(\heartbeat, \out, [~compCtrl.index, 0])[m
+[32m+[m[32mPbindef(\heartbeat).stop[m
+[32m+[m
+[32m+[m[32mPbindef(\dubbysnare,\instrument,\snare,\dur,Prand([Pseq([2],6), 1,3],inf),\amp,0.23,\noiseRelC,Pwhite(-5,-8),\noiseRel,0.4).play(quant:[4,3])[m
+[32m+[m[32mPbindef(\dubbysnare, \amp,0.6 )[m
+[32m+[m
+[32m+[m[32mPbindef(\clap, \instrument, \clap, \dur, Pxrand([0.5,Pshuf([0.25,0.75])],inf), \amp, 0.3, \rq, Pwhite(0.2,0.6), \rel,Pwhite(0.2,0.4), \freq,900, \stretch, 0.5).play(quant:[4,0.5])[m
+[32m+[m
+[32m+[m[32mPbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) + Pwhite(1,10), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKickEvent[\dur] == (1/5) || ~lastKickEvent[\dur] >= 1){0.1}{0}}).play[m
+[32m+[m[32mPbindef(\tremble, \amp, 0.2)[m
+[32m+[m[32mPbindef(\tremble).stop[m
+[32m+[m
+[32m+[m[32mPbindef(\snare, \instrument, \snaredel, \dur, Prand([Pseq([1/3],3), Pseq([1/5],5)],inf), \amp, Pfunc{ if (~lastKickEvent[\dur] >= 0.5 ) {0.05} {0}}, \deldur, 1, \delfq, 350,  \deldur, 1.5, \sus, 0.15, \delvit, 0.001, \delfq, 1, \lenmul,0.5).play(quant:4)[m
+[32m+[m[32mPbindef(\snare, \crash, 0.4) // ++ crash pour surcharger cpu :: default = 0.1[m
+[32m+[m[32mPbindef(\snare).stop.clear[m
+[32m+[m
+[32m+[m[32m(Pbindef(\snark, \instrument, \snaredel, \pan,Pwhite(-1.0,1),[m
+[32m+[m	[32m\dur,Pfunc{ if(~lastKickEvent[\dur] >= 0.5) {rrand(0.1,3)}{0.5}},[m
+[32m+[m	[32m\amp,Pfunc{ if(~lastKickEvent[\dur] >= 0.5){0.6}{0.001}},[m
+[32m+[m	[32m\rel,Pwhite(0.05,1),\relC,-3, \deldur,Pwhite(0.05,0.3),\delvit,Pwhite(0.01,0.5),\delfq,Pwhite(1,30),[m
+[32m+[m	[32m\ff,Pwrand([Pwhite(10,100,1), Pwhite(2000,5000,1)],[0.7,0.3],inf)[m
+[32m+[m[32m).play(quant:[4,2]))[m
+[32m+[m[32mPbindef(\snark, \crash, 0.13) // ++ crash pour surcharger cpu :: default = 2[m
+[32m+[m[32mPbindef(\snark).stop.clear;[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\roll, \instrument, \snare, \dur, 1/8, \noiseRelC, -12, \rel, 0.05,\att, 0.0001, \dec, 0.02, \relC, -8, \fq, [1300, 900], \hifreq, 1600, \noiseDecay, 0.05, \noiseDel, 0.01, \amp, Pfunc{if( ~noKick.(1)) {0.05} {0}}).play(quant:4)[m
+[32m+[m[32mPbindef(\roll, \amp,0.1)[m
+[32m+[m[32mPbindef(\roll, \crash, 0.18) // ++ crash pour surcharger cpu :: default = 0.1[m
+[32m+[m
+[32m+[m[32mPbindef(\clap, \freq, Pseq([Pseries(900,1,600)],inf))[m
+[32m+[m[32mPbindef(\clap, \dur, Pshuf([Pxrand([0.5,Pshuf([0.25,0.75])],2), Pseq([0.25],8), 1,2],inf))[m
+[32m+[m[32mPbindef(\clap, \freq, 950)[m
+[32m+[m
+[32m+[m
+[32m+[m[32m// STOPTOUT /[m
+[32m+[m[32mPbindef(\dubbysnare).stop;[m
+[32m+[m[32mPbindef(\heartbeat).stop;[m
+[32m+[m[32mPbindef(\baaas).stop;[m
+[32m+[m[32mPbindef(\vent).stop;[m
+[32m+[m[32mPbindef(\vent2).stop;[m
+[32m+[m[32mPbindef(\wouin).stop;[m
+[32m+[m[32mPbindef(\wouine).stop;[m
+[32m+[m
+[32m+[m[32mPbindef(\helico).stop;[m
+[32m+[m[32mPbindef(\sur).stop;[m
+[32m+[m[32mPbindef(\secondheart).stop;[m
+[32m+[m[32mPbindef(\secondsnare).stop;[m
+[32m+[m
+[32m+[m[32mPbindef(\tremble).stop[m
+[32m+[m[32mPbindef(\snare).stop;[m
+[32m+[m[32mPbindef(\snark).stop[m
+[32m+[m[32mPbindef(\roll).stop;[m
+[32m+[m[32mPbindef(\clap).stop;[m
+[32m+[m
+[32m+[m[32m//////////////// // ORGANISMES CHEUXLOUS[m
+[32m+[m[32mPdef.removeAll[m
+[32m+[m[32mPbindef(\sourdkick,\instrument,\kick,\amp,0.25,\dur,Prand([1,1.5,2],inf),\attRel,600,\freqA,220,\freqAC,30).play(quant:4);[m
+[32m+[m[32mPbindef(\sourdkick,\dur,Pwhite(1,4),\freqA,360,\freqB,100,\freqC,115,\rel,1,\relC,Pwhite(6,-12))[m
+[32m+[m[32mPbindef(\sourdkick,\freqC,30,\freqB,70,\freqAC,0,\rel,0.5)[m
+[32m+[m[32mPbindef(\sourdkick).stop.clear;[m
+[32m+[m
+[32m+[m[32mPbindef(\soussnare,\instrument,\snare,\dur,Pseq([4,2,1,1],inf),\amp,0.05,\noiseRelC,-80,\noiseRel,1,\rel,0.35,\relC,100,\fq,[220,120,442,80]).play(quant:[4]);[m
+[32m+[m[32mPbindef(\soussnare,\noiseRelC,-30,\rel,0.75)[m
+[32m+[m[32mPbindef(\soussnare,\noiseRelC,Pseq([Pseq([-30],Pwhite(4,14,1)),Pseq([10],Pwhite(1,4,1))],inf))[m
+[32m+[m[32mPbindef(\soussnare).stop.clear;[m
+[32m+[m
+[32m+[m[32mg=[]; f=[]; // < METS ça / ! ! ! \[m
+[32m+[m[32mPdef.removeAll;[m
+[32m+[m
+[32m+[m[32mg = g.add(Synth(\autoglob,[\argA,10.0.rand,\argB,30.rand,\argC,rrand(500,1400),\amp,0.31,\panFreq,0.05, \ampLag, 0.2]))[m
+[32m+[m[32mg.do({arg i; i.set(\amp, 0, \ampLag, 100)})[m
+[32m+[m[32mg.do({arg i; i.free}); g=[];[m
+[32m+[m
+[32m+[m[32me = e.add(Synth(\autoformant,[\fund,100.rand,\form,600.rand,\bw,1800.rand, \amp, 0.1, \ampLag, 0.2]))[m
+[32m+[m[32mf.do({arg i; i.set(\amp, 0, \ampLag, 510)})[m
+[32m+[m[32mf.do({arg i; i.free}); f = [];[m
+[32m+[m
+[32m+[m[32m// BAAAASSSS[m
+[32m+[m[32mPbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.33],inf),\freqB,[50,65] * Prand([1,2],inf),\rel,Pwhite(1,4.0),\relC,60,\freqBC,-50,\dur,Prand([6,8,12],inf),\amp,0.1).play(quant:4)[m
+[32m+[m[32mPbindef(\deep).stop[m
+[32m+[m
+[32m+[m[32m// Noises[m
+[32m+[m[32mPbindef(\souris,\instrument, Prand([\noiseUp, \noiseDwn],inf), \dur, Pexprand(5, 0.1), \amp, Pwhite(0,0.6), \sus, Pkey(\dur) * Pwhite(0.1, 1)).play[m
+[32m+[m[32mPbindef(\souris).stop[m
+[32m+[m
+[32m+[m[32m([m
+[32m+[m[32mPbindef(\clapo,\instrument,\blip,\amp,Pwhite(0.05,0.1),\nharm,1,\freq, Pseq([[1020,1026,1064], [1026,1032,1128], [1032,1064,1256]], inf), \stretch,1/4, \sus, 0.02).play)[m
+[32m+[m[32mPbindef(\clapo, \dur, 1/3)[m
+[32m+[m[32mPbindef(\clapo).clear[m
+[32m+[m
+[32m+[m[32mPbindef(\nitrate, \instrument,\sine,\freq,Prand([\rest,[1700,7150,1800,1720,1711],[1700,1720,1760,1800,1820,1810]],inf),\amp,Pseq([0.01,0.05],inf),\att,0.001,\sus,0,\rel,Pwhite(0.1,0.03), \dur,Pseq([1/6,2/6],inf) ).play(quant:4)[m
+[32m+[m[32mPbindef(\nitrate, \amp, 0.05, \dur, 1/7)[m
+[32m+[m[32mPbindef(\nitrate).stop.clear[m
+[32m+[m
+[32m+[m[32m(Pbindef(\snark, \instrument, \snaredel, \pan,Pwhite(-1.0,1),\dur,Prand([1,2],inf),\rel,Pwhite(0.1,1),\relC,-12,[m
+[32m+[m	[32m\deldur,Pwhite(0.05,0.3),\delvit,Pwhite(0.01,0.5),\delfq,Pwhite(1,30),[m
+[32m+[m	[32m\amp,Pwhite(0.5,0.8),\ff,Pwrand([Pwhite(10,100,1), Pwhite(2000,5000,1)],[0.7,0.3],inf)[m
+[32m+[m[32m).play(quant:[4,2]))[m
+[32m+[m[32mPbindef(\snark, \dur, Pseq([1/4,3/4],inf))[m
+[32m+[m[32mPbindef(\snark).stop.clear;[m
+[32m+[m
+[32m+[m[32mPbindef(\kik, \instrument, \kick, \dur, Pshuf([1,Prand([1,2,1.5]),1,0.5],inf), \amp, 0.2, \stretmch, 0.5, \freqAC, 2, \freqBC, -16).play(quant:4)[m
+[32m+[m[32mPbindef(\kik, \dur, 1/7, \freqAC,8, \freqBC,-30)[m
+[32m+[m[32mPbindef(\kik).stop.clear[m
+[32m+[m
+[32m+[m[32m//////////////////////////////////////////////////////////////////////////[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\bete, \instrument,\kick,\amp,0.25,\freqA,10200,\freqBC,Pwhite(-20,-3),\dur,1/4,\nharm, 1).play(quant:4);[m
+[32m+[m[32mPbindef(\bete,\rel,Pwrand([0.2,0.01,0.8],[0.6,0.2,0.2],inf),\relC,Pgauss(-3,3),\freqC,Pgauss(80,40), \nharm, 2) // Rigolo random[m
+[32m+[m[32mPbindef(\bete, \dur, 1/5)[m
+[32m+[m[32mPbindef(\bete).stop.clear;[m
+[32m+[m
+[32m+[m[32mPbindef(\claque, \instrument,\snare,\dur,2,\noiseRelC,-2,\amp,0.1).play(quant:[4,2])[m
+[32m+[m[32m// Pbindef(\claque, \sinDel, Pseq([0,Pwhite(0,0.25,1)],inf), \noiseDel, Pseq([Pwhite(0,0.2,1), 0],inf))[m
+[32m+[m[32mPbindef(\claque, \dur, Prand([1, Pseq([1/2],2), Pshuf([1/4,1/2,1/4])],inf), \amp,Pseq([0.1,Prand([0,0.1],3)],inf));[m
+[32m+[m[32mPbindef(\claque, \noiseDecay,Pseq([0.001,0.003,Pwhite(0.001,0.0005,14)],inf));[m
+[32m+[m[32mPbindef(\claque, \rel,Pseq([0.05,Pseq([0.1,0.05]),Pwhite(0.001,0.05,14)],inf));[m
+[32m+[m[32mPbindef(\claque).stop.clear[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\kik,\instrument,\kick,\amp,Pexprand(0.2,0.4,inf),\freq,Prand([1,1,1,\rest],inf),\nharm,Pwrand([1,2,3],[0.9,0.05,0.05],inf),\dur,1/4,\relC,-12,\attC,-6).play(quant:4);[m
+[32m+[m[32mPbindef(\kik).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\clap,\instrument,\snare,\amp,Pwhite(0.08,0.12),\stretch,Prand([2,1.5,0.75],inf),\rel,0.4,\sus,0.02).play(quant:[4,2])[m
+[32m+[m[32mPbindef(\clap).stop.clear[m
+[32m+[m[32m([m
+[32m+[m[32mPbindef(\clapo,\instrument,\blip,\amp,Pwhite(0.05,0.1),\nharm,1,[m
+[32m+[m	[32m\freq,Pseq([[1020,1026,1064],[1026,1032,1128],[1032,1064,1256]],inf),[m
+[32m+[m	[32m// \freq,Pseq([Array.geom(6,1000,1.1),Array.geom(6,1610.51,1.1),Array.geom(6,620.92132,1.1)].flop,inf),[m
+[32m+[m	[32m\stretch,1/4,\sus,0.02).play)[m
+[32m+[m[32mPbindef(\clapo).clear[m
+[32m+[m
+[32m+[m[32mPbindef(\nitrate, \instrument,\sine,\freq,Prand([\rest,[1700,7150,1800,1720,1711],[1700,1720,1760,1800,1820,1810]],inf),\amp,Pseq([0.01,0.05],inf),\att,0.001,\sus,0,\rel,Pwhite(0.1,0.03), \dur,Pseq([1/6,2/6],inf) ).play(quant:4)[m
+[32m+[m[32mPbindef(\nitrate, \amp, 0.05, \dur, 1/4)[m
+[32m+[m[32mPbindef(\nitrate).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\bas, \instrument, \sine,\dur,Pseq([1,2,3],inf),\sus, Pkey(\dur) / 2,\att,Pkey(\dur)/Pwhite(5,14),\rel,Pkey(\dur)/Pwhite(6,10), \freq,[120,180,90],\amp,0.2).play(quant:4);[m
+[32m+[m[32mPbindef(\bas,\freq,[120,180,90] * Pstutter(2,Pxrand([0.8,1,1.6,1.3,1.2],inf))) // Marche funebre[m
+[32m+[m[32mPbindef(\bas,\freq,[120,180,90] * Pstutter(2,Pxrand((0.95,0.96..1.1),inf))) // Marche atonale[m
+[32m+[m[32mPbindef(\bas,\dur,Pxrand([1/2,2,1/4],inf)) // Accèlere un peu[m
+[32m+[m[32mPbindef(\bas, \att,0.01, \rel, 0.01, \dur,Prand([1/4,1/4,1],inf),\sus, Pseq([Pwhite(0.05,0.2,2)],inf) ) // accélère carrément[m
+[32m+[m[32mPbindef(\bas).stop.clear[m
+[32m+[m
+[32m+[m
+[32m+[m[32m(Pbindef(\snark, \instrument, \snaredel, \pan,Pwhite(-1.0,1),\dur,Prand([1,2],inf),\rel,Pwhite(0.1,1),\relC,-12,[m
+[32m+[m	[32m\deldur,Pwhite(0.05,0.3),\delvit,Pwhite(0.01,0.5),\delfq,Pwhite(1,30),[m
+[32m+[m	[32m\amp,Pwhite(0.5,0.8),\ff,Pwrand([Pwhite(10,100,1), Pwhite(2000,5000,1)],[0.7,0.3],inf)[m
+[32m+[m[32m).play(quant:[4,2]))[m
+[32m+[m[32mPbindef(\snark, \dur, Pseq([1/4,3/4],inf))[m
+[32m+[m[32mPbindef(\snark).stop.clear;[m
+[32m+[m
+[32m+[m[32mPbindef(\kik, \instrument, \kick, \dur, Pseq([1,1,1,0.5],inf), \amp, 0.2, \stretch, 0.5, \freqAC, 0).play(quant:4)[m
+[32m+[m
+[32m+[m[32m(Pbindef(\beachbreak, \instrument, \snaredel,\dur,Pxrand([1,4,8,16],inf),\rel,Pwhite(1,3), \deldur,Pwhite(0.5,3),\delvit,Pwhite(0.01,1),\delfq,Pwhite(1,20), \amp,Pwhite(0.1,0.5),\ff,Pexprand(10,900)).play(quant:4))[m
+[32m+[m[32mPbindef(\beachbreak).stop.clear[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m(Pbindef(\hardcrack, \instrument,\snaredel,\amp,Prand([0,0.1],inf),\dur,Prand([Pseq([1/4,3/4]),1],inf), \ff, Pwhite(320,500), \relC,Pwhite(-20,-6),[m
+[32m+[m	[32m\rel,Pwrand([Pwhite(1.5,2),Pwhite(3,6,1)],[0.9,0.1],inf),[m
+[32m+[m	[32m\deldur, Pexprand(0.25,0.75),[m
+[32m+[m	[32m\delvit, Pexprand(0.001,0.5),[m
+[32m+[m	[32m\delfq,0.5[m
+[32m+[m[32m).play(quant:4))[m
+[32m+[m[32mPbindef(\hardcrack).stop.clear[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\rales, \instrument,\formant,\amp,Pwhite(0.1,0.3),\att,Pwhite(0.001,0.5),\rel,Pwhite(0.01,0.3),\dur,Pwalk((0.5,1..16),Prand([-1,0,1,2],inf),1,5),\sfreq,Pwhite(30,80),\efreq,Pwhite(300,600),\lenmul,Pwhite(1,2)).play(quant:4);[m
+[32m+[m[32mPbindef(\rales).clear[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/////// SMOOTHIE[m
+[32m+[m
+[32m+[m[32mPbindef(\crack, \instrument, \snaredel,\pan,Pwhite(-1.0,1),\dur,Prand([3.5,5.75,1],inf),\rel,Pwhite(0.01,0.3),\deldur,Pwhite(1.0,3),\delvit,Pwhite(0.001,0.5),\delfq,Pwhite(1,30),\amp,Pwhite(0.05,0.15),\ff,Pwhite(10,200)).play(quant:[4,2])[m
+[32m+[m[32mPbindef(\crack).stop.clear[m
+[32m+[m
+[32m+[m[32mz.free;[m
+[32m+[m[32mz ={XLine.kr(0.5, 0.015, Rand(0.2, 0.5), PinkNoise.ar({LFNoise1.kr(30,0.5,0.5)}!2),0,2)}.play[m
+[32m+[m[32mz.free; z ={Line.kr(0, 0.6, Rand(0.1, 0.5), PinkNoise.ar({LFNoise1.kr(18)}!2),0,2)}.play[m
+[32m+[m
+[32m+[m[32mPbindef(\basse,\instrument,\sine,\amp,0.15,\freq,[200,60,230] * Pseq([Pseq([1],Prand([3,5])),Prand([0.8,1.2])],inf),\att,0.05,\rel,2,\stretch,Pseq([4,3.25,0.75],inf)).play;[m
+[32m+[m[32mPbindef(\basse).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\bete, \instrument,\kick,\amp,0.5,\freqA,1200,\freqBC,Pwhite(-20,-16.5),\dur,4,\rel,Pkey(\dur)).play(quant:4)[m
+[32m+[m[32mPbindef(\bete).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\guuz,\instrument,\sine,\freq,[700,750,800,720,711],\amp,0.1,\att,0.001,\sus,0,\rel,Pwhite(0.1,3),\dur,Prand([4,8,16,],inf)).play[m
+[32m+[m[32mPbindef(\guuz).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\clair, \instrument, Prand([\noiseDwn, \noiseUp],inf), \dur, Pseq([Pseq([0.5],8), Prand([0.25,0.5,0.75,0.125],4)],inf), \sus, 0.3, \amp, 0.5, \panFreq,18).play[m
+[32m+[m[32mPbindef(\clair).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\claire, \instrument, \noise, \dur, Pseq([0.75, 0.25, 0.5],inf), \amp, Pseq([0.1,0],inf), \freqC, 5300).play(quant:[4])[m
+[32m+[m[32mPbindef(\claire, \rel, 1, \relC,-3)[m
+[32m+[m[32mPbindef(\claire).stop.clear[m
+[32m+[m
+[32m+[m[32m(Pbindef(\drags, \instrument,\formant,[m
+[32m+[m	[32m\amp,0.8,[m
+[32m+[m	[32m\dur, 1/4,[m
+[32m+[m	[32m\stretch, Pwrand([1,2,3],[0.5,0.3,0.2],inf), // à commenter pour accélerer[m
+[32m+[m	[32m\rel, Pwhite(0.005,0.075),[m
+[32m+[m	[32m\lenmul, Pexprand(0.001,1),[m
+[32m+[m	[32m\freq,Pstutter(18, Pseq([30,40,55,60],inf)),[m
+[32m+[m	[32m\addFreq,Pstutter(Pwhite(1,16), Pseq([300,Prand([150,1080]),55,800],inf)),[m
+[32m+[m	[32m\bwfreq, Pgauss(880,500)[m
+[32m+[m[32m).play(quant:4);[m
+[32m+[m[32m)[m
+[32m+[m[32mPbindef(\drags).stop.clear[m
+[32m+[m
+[32m+[m
+[32m+[m[32mx.free; x = {var qt = 8; FSinOsc.ar(LFNoise1.kr(1, 20, NamedControl.kr(\freq, {rrand(300, 400).postln}!qt, {rrand(0.1,1)}!qt)), 0, NamedControl.kr(\amp, 0.1, 1))}.play[m
+[32m+[m[32mx.setn(\freq, {rrand(560,530)}!8)[m
+[32m+[m[32mx.setn(\amp,0)[m
+[32m+[m[32mx.free[m
+[32m+[m
+[32m+[m[32mPbindef(\hitsine, \instrument, \kick, \rel, 0.5, \relC, 3, \freqBC, 0, \freqA,rrand(2060,5500)!6, \freqB, exprand(600,60)!6, \freqBDur, 30, \freqADur, 0.025, \dur, 3).play(quant:[4,0.5])[m
+[32m+[m[32mPbindef(\hitsine).stop[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/////////////////////////////////////////////[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\zoukik,\instrument,\kick,\amp,0.4,\dur,Pshuf([0.5,1,1.5,2],inf),\freqA,1400,\freqAC,0,\freqC,100,\freqBC,-20,\rel,0.3,\relC,-6).play(quant:4);[m
+[32m+[m[32mPbindef(\zoukik,\dur,Pwrand([1/2,1,1/4],[0.4,0.3,0.5],inf))[m
+[32m+[m[32mPbindef(\zoukik)[m
+[32m+[m[32mPbindef(\zoukik).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\sous,\instrument,\snare,\freq,Pwrand([200,\rest],[0.95,0.05],inf),\dur,Pn(Pshuf([1/8,1/4,1/4,1/8,1/2].sputter(0.75,8)),inf),\noiseRelC,Pseq([-6,Pseq([-20],Prand([7,15]))],inf),\bw,1.5,\amp,Pseq([0.1,Pseq([0.05],7)],inf)).play(quant:4)[m
+[32m+[m[32mPbindef(\sous,\dur,Pwrand([1/8,1/4],[0.8,0.2],inf))[m
+[32m+[m[32mPbindef(\sous).stop.clear[m
+[32m+[m
+[32m+[m
+[32m+[m[32m// CINQ ET SEPT / QUATRE ////////////////////////////////////////////[m
+[32m+[m[32mTempoClock.tempo_(70/60)[m
+[32m+[m
+[32m+[m[32m// Kick Définition[m
+[32m+[m[32mPbindef(\obs,\instrument,\kick,\freqA,2000,\freqBC,-12, \freqB, 80, \freqC,100)[m
+[32m+[m
+[32m+[m[32m// de l'air[m
+[32m+[m[32mPbindef(\obs, \dur,1/7,\amp,Pseq([0.5,Prand([Pseq([ Pshuf([0.01,0.1,0.5,0]),Pshuf([0.5,0.1]) ]), Pwrand([0.1,0,0.5],[0.1,0.8,0.1],6) ]) ],inf)).play(quant:4)[m
+[32m+[m
+[32m+[m[32m// moins d'air[m
+[32m+[m[32mPbindef(\obs, \dur,1/7,\amp,Pseq([0.5,Pshuf([0.01,0.1,0.5,0]),Pshuf([0.5,0.1])],inf)).play(quant:4)[m
+[32m+[m[32mPbindef(\obs, \pan, Pwhite(-0.5,0.5))[m
+[32m+[m
+[32m+[m[32mPbindef(\obs, \rel,0.25,\relC,0, \freqC,Pseq((60,61..2800),inf))[m
+[32m+[m
+[32m+[m[32m// encore moins d'air[m
+[32m+[m[32mPbindef(\obs, \amp,Pseq([0.5, Pwhite(0,0.5,6)],inf))[m
+[32m+[m[32mPbindef(\obs, \amp,Pseq([0.5, Prand([0.5,0])],inf)).stop[m
+[32m+[m
+[32m+[m[32m// BLIPS[m
+[32m+[m[32mPbindef(\metro,\instrument,\blip,\freq,Pseq([1500,Pn(1000,6)],inf),\dur,1/7).play(quant:4)[m
+[32m+[m[32mPbindef(\metro,\att,Pexprand(0.001,0.1),\amp,Prand([0.2,0],inf),\freq,Pwhite([800,600,300]/*/2*/,[200,800,400]/**4*/))[m
+[32m+[m
+[32m+[m[32m// Snare pour 7/4[m
+[32m+[m[32mPbindef(\idienne, \instrument,\snare, \dur,(Prand([2],inf)),\amp,0.075).play(quant:[4,3/7]);[m
+[32m+[m
+[32m+[m[32m// Double la snare[m
+[32m+[m[32mPbindef(\doublidienne,\fq,Pseq((1200,1180..400),inf), \instrument,\snare, \dur,(Prand([0.5,1,2],inf) + Pseq([Pshuf([1/7,-1/7,0])],inf)),\amp,0.075).play(quant:[4,5/7])[m
+[32m+[m[32mPbindef(\doublidienne).stop[m
+[32m+[m
+[32m+[m[32m// Petit formant[m
+[32m+[m[32mPbindef(\for,\instrument,\formant,\amp,Pseq([Pshuf([0.07,0,0.05,0,0])],inf),\dur,1/7,\rel,Pseq([0.01,0.02,0.35,0.001],inf), \freq,Pwhite(80,320), \addFreq,Pwhite(800,900),\lenmul,Pwhite(0.8,6),\bwfreq,880).play(quant:4)[m
+[32m+[m[32mPbindef(\for).stop.clear[m
+[32m+[m
+[32m+[m
+[32m+[m[32m// Ralonge la snare progressivement[m
+[32m+[m[32mPbindef(\idienne, \noiseRel,Pseq([(0.3,0.32..3),0.3].lace(136),inf),\rel,Pseq([(0.3,0.32..3),0.3].lace(136),inf))[m
+[32m+[m[32mPbindef(\idienne, \noiseRel,0.1, \rel,0.1)[m
+[32m+[m
+[32m+[m[32mPbindef(\idienne, \att, Pdefn(\etale), \noiseAtt, Pdefn(\etale));[m
+[32m+[m[32mPbindef(\idienne, \noiseRelC,-1, \relC,0, \dur,(Pdefn(\etale) * 1.5).trace,\fq,Pgauss(320,10)).clear[m
+[32m+[m
+[32m+[m[32mPdefn(\etale,Pseq([Pseq((0.001,0.5..3)), Pseq([3],inf)],inf))[m
+[32m+[m[32mPdefn(\gonfle, Pseq((-3,-2.5..6),inf))[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m(/* CREATE GLOBS */ h.do({arg item, i; item.free});[m
+[32m+[m[32mh.free; h = {Synth(\autoglob,[\argA,10.0.rand,\argB,30.rand,\argC,rrand(500,1400),\amp,0.15,\panFreq,1])}!2;)[m
+[32m+[m
+[32m+[m[32m/* ADD */ h = h.add(Synth(\autoglob,[\argA,3.5.rand,\argB,200.rand,\argC,3640.rand,\amp,0.5,\panFreq,1]));[m
+[32m+[m[32m/* INFOS */ h.do({arg item, i; i.post; " ".post; item.postln});[m
+[32m+[m[32m/* CONTROL */[m
+[32m+[m[32mh[0].set(\amp,0.5,\argA,4.0.rand,\argB,50.rand,\argC,rrand(50,1400))[m
+[32m+[m[32mh.do({arg item, i; item.set(\amp,0,\argA,4.0.rand,\argB,50.rand,\argC,rrand(50,1400))});[m
+[32m+[m[32mh.do({arg item, i; item.free});[m
+[32m+[m
+[32m+[m[32mj.do({arg item; item.free;}); j.free;[m
+[32m+[m[32mj = j.add(Synth(\autoformant,[\fund,180.rand,\form,600.rand,\bw,1800.rand]));[m
+[32m+[m[32mj[0].set(\fund,20)[m
+[32m+[m[32mj.do({arg item, i; item.set(\fund,180.rand,\form,600.rand,\bw,1800.rand,\amp,0.1);})[m
+[32m+[m
+[32m+[m[32m~m = [220,246.94,261.63,293.66,329.63,349.23,392.00];[m
+[32m+[m[32m~n = Array.series(7,0.5,-0.0830);[m
+[32m+[m[32m~n.reverse[m
+[32m+[m
+[32m+[m[32m/////// AUTRE CHOSE[m
+[32m+[m[32mPbindef(\harcel,\instrument,\snare,\noiseRelC,-40,\noiseRel,0.3,\rel,0.1,\relC,0,\fq,Pseq([[600,1200,2400],[800,1600,3000],[1000,2000,3600]],inf),\dur,1).play[m
+[32m+[m[32mPbindef(\ron,\instrument,\blip,\freq,Pseq(~m,inf),\amp,Pseq(~n.reverse,inf),\sus,0.25,\dur,0.25).play;[m
+[32m+[m[32mPbindef(\rond,\instrument,\blip,\freq,Pseq(~m*2,inf),\amp,Pseq(~n,inf),\sus,0.25,\dur,0.25).play;[m
+[32m+[m[32mPbindef(\ronde,\instrument,\blip,\freq,Pseq(~m*3,inf),\amp,Pseq(~n.reverse,inf),\sus,0.25,\dur,0.25).play;[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\reso,\instrument,\kick,\freqA,2800,\freqB,420,\freqC,45,\rel,0.35,\relC,0,\freqAC,-6,\freqBC,-20,\dur,0.75,\amp,0.5).play[m
+[32m+[m
+[32m+[m[32mPbindef(\harcel).stop.clear[m
+[32m+[m
+[32m+[m[32mTempoClock.default.tempo = 1.5[m
+[32m+[m
+[32m+[m[32m/////// 14/08/17[m
+[32m+[m[32mPdef.removeAll[m
+[32m+[m[32mPbindef(\bete,\instrument,\kick,\amp,0.15,\dur,1/8, \rel,0.1).play(quant:4);[m
+[32m+[m[32mPbindef(\bete,\relC,Pstutter(48,Pgauss(-6,6)),\freqC,Pstutter(72,Pgauss(60,40)));[m
+[32m+[m[32mPbindef(\bete,\freqA, Pstutter(96, Pwhite(8000,3000)),\freqAC, Pwrand([Pseq([Pwhite(-8,-16)],72), Pseq([Pseries(-16,0.25,48)])],[0.75,0.25],inf));[m
+[32m+[m[32mPbindef(\bete, \freqADur, Pwalk((0.02,0.021..0.07),Prand([-2,-1,0,1,2],inf),1,25));[m
+[32m+[m[32mPbindef(\bete,\freqB,Pstutter(96,Pwhite(60,95)));[m
+[32m+[m[32mPbindef(\bete).stop.clear;[m
+[32m+[m
+[32m+[m
+[32m+[m[32mPbindef(\kik,\instrument,\kick,\amp,Pseq([Pwrand([0.4,0.2,0],[0.8,0.175,0.025]),Prand([0,Pwhite(0,0.3,1)])],inf),/*\freq,Prand([1,1,1,\rest],inf),*/\nharm,Prand([Pseq([1],4),Pseq([1,1,2,3]), Pseq([1,1,3,1])],inf),\stretch,1/4,\relC,-12,\attC,-6).play(quant:4);[m
+[32m+[m[32mPbindef(\kik, \pan, Pwalk((-1,-0.9..1),Prand([0,1,2],inf), Pseq([1,-1],inf),5))[m
+[32m+[m[32mPbindef(\kik).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\clap,\instrument,\snare,\amp,Pwhite(0.01,0.15),\dur,Prand([1,2],inf),\noiseRelC,-16,\sus,0.05).play(quant:[4,0.5])[m
+[32m+[m[32mPbindef(\clap, \stretch,1/2)[m
+[32m+[m[32mPbindef(\clap).stop.clear[m
+[32m+[m
+[32m+[m[32m////// Formant machine[m
+[32m+[m
+[32m+[m[32mPbindef(\fofor, \instrument,\formant, \amp, 0.2,\rel,Pwhite(0.1,0.2), \dur, 0.25).play[m
+[32m+[m[32mPbindef(\fofor,\freq, 40, \addFreq, 2200, \dur, 1, \rel, 0.8, \lenmul, 1)[m
+[32m+[m[32mPbindef(\fofor, \addFreq, Pwalk((2200,1950..4), Prand([0,1,2],inf),Pseq([1,-1],inf)));[m
+[32m+[m[32mPbindef(\fofor, \freq, Pwalk((4,4.5..500), Prand([0,1,2],inf),Pseq([1,-1],inf)));[m
+[32m+[m[32mPbindef(\fofor, \lenmul, Pwalk((0.5,0.6..16), Prand([0,1,2],inf),Pseq([1,-1],inf)));[m
+[32m+[m[32mPbindef(\fofor, \dur, 0.25, \rel, Pwhite(0.08,0.2))[m
+[32m+[m[32mPbindef(\fofor, \dur, 0.75, \rel, Pwhite(0.5,0.8))[m
+[32m+[m[32mPbindef(\fofor, \lenmul, 3)[m
+[32m+[m[32mPbindef(\fofor).stop.clear[m
+[32m+[m
+[32m+[m[32mPbindef(\testtones, \instrument, \blip, \dur, 4, \sus, 3, \freq,[55,58,82,86], \att, 0.01, \rel, 0.1, \amp, 0.25).play(quant:[4,2])[m
+[32m+[m[32mPbindef(\testtones, \out, ~compIn.index)[m
+[32m+[m[32mPbindef(\testtones).play[m
+[32m+[m
+[32m+[m[32mPbindef(\testcomp, \instrument, \kick, \dur, Pseq([2,0.5,0.5,1],inf), \amp, 0.8, \out,[ ~compCtrl.index, 0]).play(quant:4)[m
+[32m+[m[32mPbindef(\testcomp, \out, 0).stop[m
+[32m+[m[32mPbindef(\testcomp, \out, ~compCtrl.index).play[m
+\ No newline at end of file[m
+
+[33mcommit 9dfef020d518a9d9ce3d8901153075cdada09bff[m
+Author: Pierre Pierre Pierre <pierre.signolat@gmail.com>
+Date:   Mon Oct 16 09:07:11 2017 +0200
+
+    Initial commit
+
+[1mdiff --git a/LICENSE b/LICENSE[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9cecc1d[m
+[1m--- /dev/null[m
+[1m+++ b/LICENSE[m
+[36m@@ -0,0 +1,674 @@[m
+[32m+[m[32m                    GNU GENERAL PUBLIC LICENSE[m
+[32m+[m[32m                       Version 3, 29 June 2007[m
+[32m+[m
+[32m+[m[32m Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>[m
+[32m+[m[32m Everyone is permitted to copy and distribute verbatim copies[m
+[32m+[m[32m of this license document, but changing it is not allowed.[m
+[32m+[m
+[32m+[m[32m                            Preamble[m
+[32m+[m
+[32m+[m[32m  The GNU General Public License is a free, copyleft license for[m
+[32m+[m[32msoftware and other kinds of works.[m
+[32m+[m
+[32m+[m[32m  The licenses for most software and other practical works are designed[m
+[32m+[m[32mto take away your freedom to share and change the works.  By contrast,[m
+[32m+[m[32mthe GNU General Public License is intended to guarantee your freedom to[m
+[32m+[m[32mshare and change all versions of a program--to make sure it remains free[m
+[32m+[m[32msoftware for all its users.  We, the Free Software Foundation, use the[m
+[32m+[m[32mGNU General Public License for most of our software; it applies also to[m
+[32m+[m[32many other work released this way by its authors.  You can apply it to[m
+[32m+[m[32myour programs, too.[m
+[32m+[m
+[32m+[m[32m  When we speak of free software, we are referring to freedom, not[m
+[32m+[m[32mprice.  Our General Public Licenses are designed to make sure that you[m
+[32m+[m[32mhave the freedom to distribute copies of free software (and charge for[m
+[32m+[m[32mthem if you wish), that you receive source code or can get it if you[m
+[32m+[m[32mwant it, that you can change the software or use pieces of it in new[m
+[32m+[m[32mfree programs, and that you know you can do these things.[m
+[32m+[m
+[32m+[m[32m  To protect your rights, we need to prevent others from denying you[m
+[32m+[m[32mthese rights or asking you to surrender the rights.  Therefore, you have[m
+[32m+[m[32mcertain responsibilities if you distribute copies of the software, or if[m
+[32m+[m[32myou modify it: responsibilities to respect the freedom of others.[m
+[32m+[m
+[32m+[m[32m  For example, if you distribute copies of such a program, whether[m
+[32m+[m[32mgratis or for a fee, you must pass on to the recipients the same[m
+[32m+[m[32mfreedoms that you received.  You must make sure that they, too, receive[m
+[32m+[m[32mor can get the source code.  And you must show them these terms so they[m
+[32m+[m[32mknow their rights.[m
+[32m+[m
+[32m+[m[32m  Developers that use the GNU GPL protect your rights with two steps:[m
+[32m+[m[32m(1) assert copyright on the software, and (2) offer you this License[m
+[32m+[m[32mgiving you legal permission to copy, distribute and/or modify it.[m
+[32m+[m
+[32m+[m[32m  For the developers' and authors' protection, the GPL clearly explains[m
+[32m+[m[32mthat there is no warranty for this free software.  For both users' and[m
+[32m+[m[32mauthors' sake, the GPL requires that modified versions be marked as[m
+[32m+[m[32mchanged, so that their problems will not be attributed erroneously to[m
+[32m+[m[32mauthors of previous versions.[m
+[32m+[m
+[32m+[m[32m  Some devices are designed to deny users access to install or run[m
+[32m+[m[32mmodified versions of the software inside them, although the manufacturer[m
+[32m+[m[32mcan do so.  This is fundamentally incompatible with the aim of[m
+[32m+[m[32mprotecting users' freedom to change the software.  The systematic[m
+[32m+[m[32mpattern of such abuse occurs in the area of products for individuals to[m
+[32m+[m[32muse, which is precisely where it is most unacceptable.  Therefore, we[m
+[32m+[m[32mhave designed this version of the GPL to prohibit the practice for those[m
+[32m+[m[32mproducts.  If such problems arise substantially in other domains, we[m
+[32m+[m[32mstand ready to extend this provision to those domains in future versions[m
+[32m+[m[32mof the GPL, as needed to protect the freedom of users.[m
+[32m+[m
+[32m+[m[32m  Finally, every program is threatened constantly by software patents.[m
+[32m+[m[32mStates should not allow patents to restrict development and use of[m
+[32m+[m[32msoftware on general-purpose computers, but in those that do, we wish to[m
+[32m+[m[32mavoid the special danger that patents applied to a free program could[m
+[32m+[m[32mmake it effectively proprietary.  To prevent this, the GPL assures that[m
+[32m+[m[32mpatents cannot be used to render the program non-free.[m
+[32m+[m
+[32m+[m[32m  The precise terms and conditions for copying, distribution and[m
+[32m+[m[32mmodification follow.[m
+[32m+[m
+[32m+[m[32m                       TERMS AND CONDITIONS[m
+[32m+[m
+[32m+[m[32m  0. Definitions.[m
+[32m+[m
+[32m+[m[32m  "This License" refers to version 3 of the GNU General Public License.[m
+[32m+[m
+[32m+[m[32m  "Copyright" also means copyright-like laws that apply to other kinds of[m
+[32m+[m[32mworks, such as semiconductor masks.[m
+[32m+[m
+[32m+[m[32m  "The Program" refers to any copyrightable work licensed under this[m
+[32m+[m[32mLicense.  Each licensee is addressed as "you".  "Licensees" and[m
+[32m+[m[32m"recipients" may be individuals or organizations.[m
+[32m+[m
+[32m+[m[32m  To "modify" a work means to copy from or adapt all or part of the work[m
+[32m+[m[32min a fashion requiring copyright permission, other than the making of an[m
+[32m+[m[32mexact copy.  The resulting work is called a "modified version" of the[m
+[32m+[m[32mearlier work or a work "based on" the earlier work.[m
+[32m+[m
+[32m+[m[32m  A "covered work" means either the unmodified Program or a work based[m
+[32m+[m[32mon the Program.[m
+[32m+[m
+[32m+[m[32m  To "propagate" a work means to do anything with it that, without[m
+[32m+[m[32mpermission, would make you directly or secondarily liable for[m
+[32m+[m[32minfringement under applicable copyright law, except executing it on a[m
+[32m+[m[32mcomputer or modifying a private copy.  Propagation includes copying,[m
+[32m+[m[32mdistribution (with or without modification), making available to the[m
+[32m+[m[32mpublic, and in some countries other activities as well.[m
+[32m+[m
+[32m+[m[32m  To "convey" a work means any kind of propagation that enables other[m
+[32m+[m[32mparties to make or receive copies.  Mere interaction with a user through[m
+[32m+[m[32ma computer network, with no transfer of a copy, is not conveying.[m
+[32m+[m
+[32m+[m[32m  An interactive user interface displays "Appropriate Legal Notices"[m
+[32m+[m[32mto the extent that it includes a convenient and prominently visible[m
+[32m+[m[32mfeature that (1) displays an appropriate copyright notice, and (2)[m
+[32m+[m[32mtells the user that there is no warranty for the work (except to the[m
+[32m+[m[32mextent that warranties are provided), that licensees may convey the[m
+[32m+[m[32mwork under this License, and how to view a copy of this License.  If[m
+[32m+[m[32mthe interface presents a list of user commands or options, such as a[m
+[32m+[m[32mmenu, a prominent item in the list meets this criterion.[m
+[32m+[m
+[32m+[m[32m  1. Source Code.[m
+[32m+[m
+[32m+[m[32m  The "source code" for a work means the preferred form of the work[m
+[32m+[m[32mfor making modifications to it.  "Object code" means any non-source[m
+[32m+[m[32mform of a work.[m
+[32m+[m
+[32m+[m[32m  A "Standard Interface" means an interface that either is an official[m
+[32m+[m[32mstandard defined by a recognized standards body, or, in the case of[m
+[32m+[m[32minterfaces specified for a particular programming language, one that[m
+[32m+[m[32mis widely used among developers working in that language.[m
+[32m+[m
+[32m+[m[32m  The "System Libraries" of an executable work include anything, other[m
+[32m+[m[32mthan the work as a whole, that (a) is included in the normal form of[m
+[32m+[m[32mpackaging a Major Component, but which is not part of that Major[m
+[32m+[m[32mComponent, and (b) serves only to enable use of the work with that[m
+[32m+[m[32mMajor Component, or to implement a Standard Interface for which an[m
+[32m+[m[32mimplementation is available to the public in source code form.  A[m
+[32m+[m[32m"Major Component", in this context, means a major essential component[m
+[32m+[m[32m(kernel, window system, and so on) of the specific operating system[m
+[32m+[m[32m(if any) on which the executable work runs, or a compiler used to[m
+[32m+[m[32mproduce the work, or an object code interpreter used to run it.[m
+[32m+[m
+[32m+[m[32m  The "Corresponding Source" for a work in object code form means all[m
+[32m+[m[32mthe source code needed to generate, install, and (for an executable[m
+[32m+[m[32mwork) run the object code and to modify the work, including scripts to[m
+[32m+[m[32mcontrol those activities.  However, it does not include the work's[m
+[32m+[m[32mSystem Libraries, or general-purpose tools or generally available free[m
+[32m+[m[32mprograms which are used unmodified in performing those activities but[m
+[32m+[m[32mwhich are not part of the work.  For example, Corresponding Source[m
+[32m+[m[32mincludes interface definition files associated with source files for[m
+[32m+[m[32mthe work, and the source code for shared libraries and dynamically[m
+[32m+[m[32mlinked subprograms that the work is specifically designed to require,[m
+[32m+[m[32msuch as by intimate data communication or control flow between those[m
+[32m+[m[32msubprograms and other parts of the work.[m
+[32m+[m
+[32m+[m[32m  The Corresponding Source need not include anything that users[m
+[32m+[m[32mcan regenerate automatically from other parts of the Corresponding[m
+[32m+[m[32mSource.[m
+[32m+[m
+[32m+[m[32m  The Corresponding Source for a work in source code form is that[m
+[32m+[m[32msame work.[m
+[32m+[m
+[32m+[m[32m  2. Basic Permissions.[m
+[32m+[m
+[32m+[m[32m  All rights granted under this License are granted for the term of[m
+[32m+[m[32mcopyright on the Program, and are irrevocable provided the stated[m
+[32m+[m[32mconditions are met.  This License explicitly affirms your unlimited[m
+[32m+[m[32mpermission to run the unmodified Program.  The output from running a[m
+[32m+[m[32mcovered work is covered by this License only if the output, given its[m
+[32m+[m[32mcontent, constitutes a covered work.  This License acknowledges your[m
+[32m+[m[32mrights of fair use or other equivalent, as provided by copyright law.[m
+[32m+[m
+[32m+[m[32m  You may make, run and propagate covered works that you do not[m
+[32m+[m[32mconvey, without conditions so long as your license otherwise remains[m
+[32m+[m[32min force.  You may convey covered works to others for the sole purpose[m
+[32m+[m[32mof having them make modifications exclusively for you, or provide you[m
+[32m+[m[32mwith facilities for running those works, provided that you comply with[m
+[32m+[m[32mthe terms of this License in conveying all material for which you do[m
+[32m+[m[32mnot control copyright.  Those thus making or running the covered works[m
+[32m+[m[32mfor you must do so exclusively on your behalf, under your direction[m
+[32m+[m[32mand control, on terms that prohibit them from making any copies of[m
+[32m+[m[32myour copyrighted material outside their relationship with you.[m
+[32m+[m
+[32m+[m[32m  Conveying under any other circumstances is permitted solely under[m
+[32m+[m[32mthe conditions stated below.  Sublicensing is not allowed; section 10[m
+[32m+[m[32mmakes it unnecessary.[m
+[32m+[m
+[32m+[m[32m  3. Protecting Users' Legal Rights From Anti-Circumvention Law.[m
+[32m+[m
+[32m+[m[32m  No covered work shall be deemed part of an effective technological[m
+[32m+[m[32mmeasure under any applicable law fulfilling obligations under article[m
+[32m+[m[32m11 of the WIPO copyright treaty adopted on 20 December 1996, or[m
+[32m+[m[32msimilar laws prohibiting or restricting circumvention of such[m
+[32m+[m[32mmeasures.[m
+[32m+[m
+[32m+[m[32m  When you convey a covered work, you waive any legal power to forbid[m
+[32m+[m[32mcircumvention of technological measures to the extent such circumvention[m
+[32m+[m[32mis effected by exercising rights under this License with respect to[m
+[32m+[m[32mthe covered work, and you disclaim any intention to limit operation or[m
+[32m+[m[32mmodification of the work as a means of enforcing, against the work's[m
+[32m+[m[32musers, your or third parties' legal rights to forbid circumvention of[m
+[32m+[m[32mtechnological measures.[m
+[32m+[m
+[32m+[m[32m  4. Conveying Verbatim Copies.[m
+[32m+[m
+[32m+[m[32m  You may convey verbatim copies of the Program's source code as you[m
+[32m+[m[32mreceive it, in any medium, provided that you conspicuously and[m
+[32m+[m[32mappropriately publish on each copy an appropriate copyright notice;[m
+[32m+[m[32mkeep intact all notices stating that this License and any[m
+[32m+[m[32mnon-permissive terms added in accord with section 7 apply to the code;[m
+[32m+[m[32mkeep intact all notices of the absence of any warranty; and give all[m
+[32m+[m[32mrecipients a copy of this License along with the Program.[m
+[32m+[m
+[32m+[m[32m  You may charge any price or no price for each copy that you convey,[m
+[32m+[m[32mand you may offer support or warranty protection for a fee.[m
+[32m+[m
+[32m+[m[32m  5. Conveying Modified Source Versions.[m
+[32m+[m
+[32m+[m[32m  You may convey a work based on the Program, or the modifications to[m
+[32m+[m[32mproduce it from the Program, in the form of source code under the[m
+[32m+[m[32mterms of section 4, provided that you also meet all of these conditions:[m
+[32m+[m
+[32m+[m[32m    a) The work must carry prominent notices stating that you modified[m
+[32m+[m[32m    it, and giving a relevant date.[m
+[32m+[m
+[32m+[m[32m    b) The work must carry prominent notices stating that it is[m
+[32m+[m[32m    released under this License and any conditions added under section[m
+[32m+[m[32m    7.  This requirement modifies the requirement in section 4 to[m
+[32m+[m[32m    "keep intact all notices".[m
+[32m+[m
+[32m+[m[32m    c) You must license the entire work, as a whole, under this[m
+[32m+[m[32m    License to anyone who comes into possession of a copy.  This[m
+[32m+[m[32m    License will therefore apply, along with any applicable section 7[m
+[32m+[m[32m    additional terms, to the whole of the work, and all its parts,[m
+[32m+[m[32m    regardless of how they are packaged.  This License gives no[m
+[32m+[m[32m    permission to license the work in any other way, but it does not[m
+[32m+[m[32m    invalidate such permission if you have separately received it.[m
+[32m+[m
+[32m+[m[32m    d) If the work has interactive user interfaces, each must display[m
+[32m+[m[32m    Appropriate Legal Notices; however, if the Program has interactive[m
+[32m+[m[32m    interfaces that do not display Appropriate Legal Notices, your[m
+[32m+[m[32m    work need not make them do so.[m
+[32m+[m
+[32m+[m[32m  A compilation of a covered work with other separate and independent[m
+[32m+[m[32mworks, which are not by their nature extensions of the covered work,[m
+[32m+[m[32mand which are not combined with it such as to form a larger program,[m
+[32m+[m[32min or on a volume of a storage or distribution medium, is called an[m
+[32m+[m[32m"aggregate" if the compilation and its resulting copyright are not[m
+[32m+[m[32mused to limit the access or legal rights of the compilation's users[m
+[32m+[m[32mbeyond what the individual works permit.  Inclusion of a covered work[m
+[32m+[m[32min an aggregate does not cause this License to apply to the other[m
+[32m+[m[32mparts of the aggregate.[m
+[32m+[m
+[32m+[m[32m  6. Conveying Non-Source Forms.[m
+[32m+[m
+[32m+[m[32m  You may convey a covered work in object code form under the terms[m
+[32m+[m[32mof sections 4 and 5, provided that you also convey the[m
+[32m+[m[32mmachine-readable Corresponding Source under the terms of this License,[m
+[32m+[m[32min one of these ways:[m
+[32m+[m
+[32m+[m[32m    a) Convey the object code in, or embodied in, a physical product[m
+[32m+[m[32m    (including a physical distribution medium), accompanied by the[m
+[32m+[m[32m    Corresponding Source fixed on a durable physical medium[m
+[32m+[m[32m    customarily used for software interchange.[m
+[32m+[m
+[32m+[m[32m    b) Convey the object code in, or embodied in, a physical product[m
+[32m+[m[32m    (including a physical distribution medium), accompanied by a[m
+[32m+[m[32m    written offer, valid for at least three years and valid for as[m
+[32m+[m[32m    long as you offer spare parts or customer support for that product[m
+[32m+[m[32m    model, to give anyone who possesses the object code either (1) a[m
+[32m+[m[32m    copy of the Corresponding Source for all the software in the[m
+[32m+[m[32m    product that is covered by this License, on a durable physical[m
+[32m+[m[32m    medium customarily used for software interchange, for a price no[m
+[32m+[m[32m    more than your reasonable cost of physically performing this[m
+[32m+[m[32m    conveying of source, or (2) access to copy the[m
+[32m+[m[32m    Corresponding Source from a network server at no charge.[m
+[32m+[m
+[32m+[m[32m    c) Convey individual copies of the object code with a copy of the[m
+[32m+[m[32m    written offer to provide the Corresponding Source.  This[m
+[32m+[m[32m    alternative is allowed only occasionally and noncommercially, and[m
+[32m+[m[32m    only if you received the object code with such an offer, in accord[m
+[32m+[m[32m    with subsection 6b.[m
+[32m+[m
+[32m+[m[32m    d) Convey the object code by offering access from a designated[m
+[32m+[m[32m    place (gratis or for a charge), and offer equivalent access to the[m
+[32m+[m[32m    Corresponding Source in the same way through the same place at no[m
+[32m+[m[32m    further charge.  You need not require recipients to copy the[m
+[32m+[m[32m    Corresponding Source along with the object code.  If the place to[m
+[32m+[m[32m    copy the object code is a network server, the Corresponding Source[m
+[32m+[m[32m    may be on a different server (operated by you or a third party)[m
+[32m+[m[32m    that supports equivalent copying facilities, provided you maintain[m
+[32m+[m[32m    clear directions next to the object code saying where to find the[m
+[32m+[m[32m    Corresponding Source.  Regardless of what server hosts the[m
+[32m+[m[32m    Corresponding Source, you remain obligated to ensure that it is[m
+[32m+[m[32m    available for as long as needed to satisfy these requirements.[m
+[32m+[m
+[32m+[m[32m    e) Convey the object code using peer-to-peer transmission, provided[m
+[32m+[m[32m    you inform other peers where the object code and Corresponding[m
+[32m+[m[32m    Source of the work are being offered to the general public at no[m
+[32m+[m[32m    charge under subsection 6d.[m
+[32m+[m
+[32m+[m[32m  A separable portion of the object code, whose source code is excluded[m
+[32m+[m[32mfrom the Corresponding Source as a System Library, need not be[m
+[32m+[m[32mincluded in conveying the object code work.[m
+[32m+[m
+[32m+[m[32m  A "User Product" is either (1) a "consumer product", which means any[m
+[32m+[m[32mtangible personal property which is normally used for personal, family,[m
+[32m+[m[32mor household purposes, or (2) anything designed or sold for incorporation[m
+[32m+[m[32minto a dwelling.  In determining whether a product is a consumer product,[m
+[32m+[m[32mdoubtful cases shall be resolved in favor of coverage.  For a particular[m
+[32m+[m[32mproduct received by a particular user, "normally used" refers to a[m
+[32m+[m[32mtypical or common use of that class of product, regardless of the status[m
+[32m+[m[32mof the particular user or of the way in which the particular user[m
+[32m+[m[32mactually uses, or expects or is expected to use, the product.  A product[m
+[32m+[m[32mis a consumer product regardless of whether the product has substantial[m
+[32m+[m[32mcommercial, industrial or non-consumer uses, unless such uses represent[m
+[32m+[m[32mthe only significant mode of use of the product.[m
+[32m+[m
+[32m+[m[32m  "Installation Information" for a User Product means any methods,[m
+[32m+[m[32mprocedures, authorization keys, or other information required to install[m
+[32m+[m[32mand execute modified versions of a covered work in that User Product from[m
+[32m+[m[32ma modified version of its Corresponding Source.  The information must[m
+[32m+[m[32msuffice to ensure that the continued functioning of the modified object[m
+[32m+[m[32mcode is in no case prevented or interfered with solely because[m
+[32m+[m[32mmodification has been made.[m
+[32m+[m
+[32m+[m[32m  If you convey an object code work under this section in, or with, or[m
+[32m+[m[32mspecifically for use in, a User Product, and the conveying occurs as[m
+[32m+[m[32mpart of a transaction in which the right of possession and use of the[m
+[32m+[m[32mUser Product is transferred to the recipient in perpetuity or for a[m
+[32m+[m[32mfixed term (regardless of how the transaction is characterized), the[m
+[32m+[m[32mCorresponding Source conveyed under this section must be accompanied[m
+[32m+[m[32mby the Installation Information.  But this requirement does not apply[m
+[32m+[m[32mif neither you nor any third party retains the ability to install[m
+[32m+[m[32mmodified object code on the User Product (for example, the work has[m
+[32m+[m[32mbeen installed in ROM).[m
+[32m+[m
+[32m+[m[32m  The requirement to provide Installation Information does not include a[m
+[32m+[m[32mrequirement to continue to provide support service, warranty, or updates[m
+[32m+[m[32mfor a work that has been modified or installed by the recipient, or for[m
+[32m+[m[32mthe User Product in which it has been modified or installed.  Access to a[m
+[32m+[m[32mnetwork may be denied when the modification itself materially and[m
+[32m+[m[32madversely affects the operation of the network or violates the rules and[m
+[32m+[m[32mprotocols for communication across the network.[m
+[32m+[m
+[32m+[m[32m  Corresponding Source conveyed, and Installation Information provided,[m
+[32m+[m[32min accord with this section must be in a format that is publicly[m
+[32m+[m[32mdocumented (and with an implementation available to the public in[m
+[32m+[m[32msource code form), and must require no special password or key for[m
+[32m+[m[32munpacking, reading or copying.[m
+[32m+[m
+[32m+[m[32m  7. Additional Terms.[m
+[32m+[m
+[32m+[m[32m  "Additional permissions" are terms that supplement the terms of this[m
+[32m+[m[32mLicense by making exceptions from one or more of its conditions.[m
+[32m+[m[32mAdditional permissions that are applicable to the entire Program shall[m
+[32m+[m[32mbe treated as though they were included in this License, to the extent[m
+[32m+[m[32mthat they are valid under applicable law.  If additional permissions[m
+[32m+[m[32mapply only to part of the Program, that part may be used separately[m
+[32m+[m[32munder those permissions, but the entire Program remains governed by[m
+[32m+[m[32mthis License without regard to the additional permissions.[m
+[32m+[m
+[32m+[m[32m  When you convey a copy of a covered work, you may at your option[m
+[32m+[m[32mremove any additional permissions from that copy, or from any part of[m
+[32m+[m[32mit.  (Additional permissions may be written to require their own[m
+[32m+[m[32mremoval in certain cases when you modify the work.)  You may place[m
+[32m+[m[32madditional permissions on material, added by you to a covered work,[m
+[32m+[m[32mfor which you have or can give appropriate copyright permission.[m
+[32m+[m
+[32m+[m[32m  Notwithstanding any other provision of this License, for material you[m
+[32m+[m[32madd to a covered work, you may (if authorized by the copyright holders of[m
+[32m+[m[32mthat material) supplement the terms of this License with terms:[m
+[32m+[m
+[32m+[m[32m    a) Disclaiming warranty or limiting liability differently from the[m
+[32m+[m[32m    terms of sections 15 and 16 of this License; or[m
+[32m+[m
+[32m+[m[32m    b) Requiring preservation of specified reasonable legal notices or[m
+[32m+[m[32m    author attributions in that material or in the Appropriate Legal[m
+[32m+[m[32m    Notices displayed by works containing it; or[m
+[32m+[m
+[32m+[m[32m    c) Prohibiting misrepresentation of the origin of that material, or[m
+[32m+[m[32m    requiring that modified versions of such material be marked in[m
+[32m+[m[32m    reasonable ways as different from the original version; or[m
+[32m+[m
+[32m+[m[32m    d) Limiting the use for publicity purposes of names of licensors or[m
+[32m+[m[32m    authors of the material; or[m
+[32m+[m
+[32m+[m[32m    e) Declining to grant rights under trademark law for use of some[m
+[32m+[m[32m    trade names, trademarks, or service marks; or[m
+[32m+[m
+[32m+[m[32m    f) Requiring indemnification of licensors and authors of that[m
+[32m+[m[32m    material by anyone who conveys the material (or modified versions of[m
+[32m+[m[32m    it) with contractual assumptions of liability to the recipient, for[m
+[32m+[m[32m    any liability that these contractual assumptions directly impose on[m
+[32m+[m[32m    those licensors and authors.[m
+[32m+[m
+[32m+[m[32m  All other non-permissive additional terms are considered "further[m
+[32m+[m[32mrestrictions" within the meaning of section 10.  If the Program as you[m
+[32m+[m[32mreceived it, or any part of it, contains a notice stating that it is[m
+[32m+[m[32mgoverned by this License along with a term that is a further[m
+[32m+[m[32mrestriction, you may remove that term.  If a license document contains[m
+[32m+[m[32ma further restriction but permits relicensing or conveying under this[m
+[32m+[m[32mLicense, you may add to a covered work material governed by the terms[m
+[32m+[m[32mof that license document, provided that the further restriction does[m
+[32m+[m[32mnot survive such relicensing or conveying.[m
+[32m+[m
+[32m+[m[32m  If you add terms to a covered work in accord with this section, you[m
+[32m+[m[32mmust place, in the relevant source files, a statement of the[m
+[32m+[m[32madditional terms that apply to those files, or a notice indicating[m
+[32m+[m[32mwhere to find the applicable terms.[m
+[32m+[m
+[32m+[m[32m  Additional terms, permissive or non-permissive, may be stated in the[m
+[32m+[m[32mform of a separately written license, or stated as exceptions;[m
+[32m+[m[32mthe above requirements apply either way.[m
+[32m+[m
+[32m+[m[32m  8. Termination.[m
+[32m+[m
+[32m+[m[32m  You may not propagate or modify a covered work except as expressly[m
+[32m+[m[32mprovided under this License.  Any attempt otherwise to propagate or[m
+[32m+[m[32mmodify it is void, and will automatically terminate your rights under[m
+[32m+[m[32mthis License (including any patent licenses granted under the third[m
+[32m+[m[32mparagraph of section 11).[m
+[32m+[m
+[32m+[m[32m  However, if you cease all violation of this License, then your[m
+[32m+[m[32mlicense from a particular copyright holder is reinstated (a)[m
+[32m+[m[32mprovisionally, unless and until the copyright holder explicitly and[m
+[32m+[m[32mfinally terminates your license, and (b) permanently, if the copyright[m
+[32m+[m[32mholder fails to notify you of the violation by some reasonable means[m
+[32m+[m[32mprior to 60 days after the cessation.[m
+[32m+[m
+[32m+[m[32m  Moreover, your license from a particular copyright holder is[m
+[32m+[m[32mreinstated permanently if the copyright holder notifies you of the[m
+[32m+[m[32mviolation by some reasonable means, this is the first time you have[m
+[32m+[m[32mreceived notice of violation of this License (for any work) from that[m
+[32m+[m[32mcopyright holder, and you cure the violation prior to 30 days after[m
+[32m+[m[32myour receipt of the notice.[m
+[32m+[m
+[32m+[m[32m  Termination of your rights under this section does not terminate the[m
+[32m+[m[32mlicenses of parties who have received copies or rights from you under[m
+[32m+[m[32mthis License.  If your rights have been terminated and not permanently[m
+[32m+[m[32mreinstated, you do not qualify to receive new licenses for the same[m
+[32m+[m[32mmaterial under section 10.[m
+[32m+[m
+[32m+[m[32m  9. Acceptance Not Required for Having Copies.[m
+[32m+[m
+[32m+[m[32m  You are not required to accept this License in order to receive or[m
+[32m+[m[32mrun a copy of the Program.  Ancillary propagation of a covered work[m
+[32m+[m[32moccurring solely as a consequence of using peer-to-peer transmission[m
+[32m+[m[32mto receive a copy likewise does not require acceptance.  However,[m
+[32m+[m[32mnothing other than this License grants you permission to propagate or[m
+[32m+[m[32mmodify any covered work.  These actions infringe copyright if you do[m
+[32m+[m[32mnot accept this License.  Therefore, by modifying or propagating a[m
+[32m+[m[32mcovered work, you indicate your acceptance of this License to do so.[m
+[32m+[m
+[32m+[m[32m  10. Automatic Licensing of Downstream Recipients.[m
+[32m+[m
+[32m+[m[32m  Each time you convey a covered work, the recipient automatically[m
+[32m+[m[32mreceives a license from the original licensors, to run, modify and[m
+[32m+[m[32mpropagate that work, subject to this License.  You are not responsible[m
+[32m+[m[32mfor enforcing compliance by third parties with this License.[m
+[32m+[m
+[32m+[m[32m  An "entity transaction" is a transaction transferring control of an[m
+[32m+[m[32morganization, or substantially all assets of one, or subdividing an[m
+[32m+[m[32morganization, or merging organizations.  If propagation of a covered[m
+[32m+[m[32mwork results from an entity transaction, each party to that[m
+[32m+[m[32mtransaction who receives a copy of the work also receives whatever[m
+[32m+[m[32mlicenses to the work the party's predecessor in interest had or could[m
+[32m+[m[32mgive under the previous paragraph, plus a right to possession of the[m
+[32m+[m[32mCorresponding Source of the work from the predecessor in interest, if[m
+[32m+[m[32mthe predecessor has it or can get it with reasonable efforts.[m
+[32m+[m
+[32m+[m[32m  You may not impose any further restrictions on the exercise of the[m
+[32m+[m[32mrights granted or affirmed under this License.  For example, you may[m
+[32m+[m[32mnot impose a license fee, royalty, or other charge for exercise of[m
+[32m+[m[32mrights granted under this License, and you may not initiate litigation[m
+[32m+[m[32m(including a cross-claim or counterclaim in a lawsuit) alleging that[m
+[32m+[m[32many patent claim is infringed by making, using, selling, offering for[m
+[32m+[m[32msale, or importing the Program or any portion of it.[m
+[32m+[m
+[32m+[m[32m  11. Patents.[m
+[32m+[m
+[32m+[m[32m  A "contributor" is a copyright holder who authorizes use under this[m
+[32m+[m[32mLicense of the Program or a work on which the Program is based.  The[m
+[32m+[m[32mwork thus licensed is called the contributor's "contributor version".[m
+[32m+[m
+[32m+[m[32m  A contributor's "essential patent claims" are all patent claims[m
+[32m+[m[32mowned or controlled by the contributor, whether already acquired or[m
+[32m+[m[32mhereafter acquired, that would be infringed by some manner, permitted[m
+[32m+[m[32mby this License, of making, using, or selling its contributor version,[m
+[32m+[m[32mbut do not include claims that would be infringed only as a[m
+[32m+[m[32mconsequence of further modification of the contributor version.  For[m
+[32m+[m[32mpurposes of this definition, "control" includes the right to grant[m
+[32m+[m[32mpatent sublicenses in a manner consistent with the requirements of[m
+[32m+[m[32mthis License.[m
+[32m+[m
+[32m+[m[32m  Each contributor grants you a non-exclusive, worldwide, royalty-free[m
+[32m+[m[32mpatent license under the contributor's essential patent claims, to[m
+[32m+[m[32mmake, use, sell, offer for sale, import and otherwise run, modify and[m
+[32m+[m[32mpropagate the contents of its contributor version.[m
+[32m+[m
+[32m+[m[32m  In the following three paragraphs, a "patent license" is any express[m
+[32m+[m[32magreement or commitment, however denominated, not to enforce a patent[m
+[32m+[m[32m(such as an express permission to practice a patent or covenant not to[m
+[32m+[m[32msue for patent infringement).  To "grant" such a patent license to a[m
+[32m+[m[32mparty means to make such an agreement or commitment not to enforce a[m
+[32m+[m[32mpatent against the party.[m
+[32m+[m
+[32m+[m[32m  If you convey a covered work, knowingly relying on a patent license,[m
+[32m+[m[32mand the Corresponding Source of the work is not available for anyone[m
+[32m+[m[32mto copy, free of charge and under the terms of this License, through a[m
+[32m+[m[32mpublicly available network server or other readily accessible means,[m
+[32m+[m[32mthen you must either (1) cause the Corresponding Source to be so[m
+[32m+[m[32mavailable, or (2) arrange to deprive yourself of the benefit of the[m
+[32m+[m[32mpatent license for this particular work, or (3) arrange, in a manner[m
+[32m+[m[32mconsistent with the requirements of this License, to extend the patent[m
+[32m+[m[32mlicense to downstream recipients.  "Knowingly relying" means you have[m
+[32m+[m[32mactual knowledge that, but for the patent license, your conveying the[m
+[32m+[m[32mcovered work in a country, or your recipient's use of the covered work[m
+[32m+[m[32min a country, would infringe one or more identifiable patents in that[m
+[32m+[m[32mcountry that you have reason to believe are valid.[m
+[32m+[m
+[32m+[m[32m  If, pursuant to or in connection with a single transaction or[m
+[32m+[m[32marrangement, you convey, or propagate by procuring conveyance of, a[m
+[32m+[m[32mcovered work, and grant a patent license to some of the parties[m
+[32m+[m[32mreceiving the covered work authorizing them to use, propagate, modify[m
+[32m+[m[32mor convey a specific copy of the covered work, then the patent license[m
+[32m+[m[32myou grant is automatically extended to all recipients of the covered[m
+[32m+[m[32mwork and works based on it.[m
+[32m+[m
+[32m+[m[32m  A patent license is "discriminatory" if it does not include within[m
+[32m+[m[32mthe scope of its coverage, prohibits the exercise of, or is[m
+[32m+[m[32mconditioned on the non-exercise of one or more of the rights that are[m
+[32m+[m[32mspecifically granted under this License.  You may not convey a covered[m
+[32m+[m[32mwork if you are a party to an arrangement with a third party that is[m
+[32m+[m[32min the business of distributing software, under which you make payment[m
+[32m+[m[32mto the third party based on the extent of your activity of conveying[m
+[32m+[m[32mthe work, and under which the third party grants, to any of the[m
+[32m+[m[32mparties who would receive the covered work from you, a discriminatory[m
+[32m+[m[32mpatent license (a) in connection with copies of the covered work[m
+[32m+[m[32mconveyed by you (or copies made from those copies), or (b) primarily[m
+[32m+[m[32mfor and in connection with specific products or compilations that[m
+[32m+[m[32mcontain the covered work, unless you entered into that arrangement,[m
+[32m+[m[32mor that patent license was granted, prior to 28 March 2007.[m
+[32m+[m
+[32m+[m[32m  Nothing in this License shall be construed as excluding or limiting[m
+[32m+[m[32many implied license or other defenses to infringement that may[m
+[32m+[m[32motherwise be available to you under applicable patent law.[m
+[32m+[m
+[32m+[m[32m  12. No Surrender of Others' Freedom.[m
+[32m+[m
+[32m+[m[32m  If conditions are imposed on you (whether by court order, agreement or[m
+[32m+[m[32motherwise) that contradict the conditions of this License, they do not[m
+[32m+[m[32mexcuse you from the conditions of this License.  If you cannot convey a[m
+[32m+[m[32mcovered work so as to satisfy simultaneously your obligations under this[m
+[32m+[m[32mLicense and any other pertinent obligations, then as a consequence you may[m
+[32m+[m[32mnot convey it at all.  For example, if you agree to terms that obligate you[m
+[32m+[m[32mto collect a royalty for further conveying from those to whom you convey[m
+[32m+[m[32mthe Program, the only way you could satisfy both those terms and this[m
+[32m+[m[32mLicense would be to refrain entirely from conveying the Program.[m
+[32m+[m
+[32m+[m[32m  13. Use with the GNU Affero General Public License.[m
+[32m+[m
+[32m+[m[32m  Notwithstanding any other provision of this License, you have[m
+[32m+[m[32mpermission to link or combine any covered work with a work licensed[m
+[32m+[m[32munder version 3 of the GNU Affero General Public License into a single[m
+[32m+[m[32mcombined work, and to convey the resulting work.  The terms of this[m
+[32m+[m[32mLicense will continue to apply to the part which is the covered work,[m
+[32m+[m[32mbut the special requirements of the GNU Affero General Public License,[m
+[32m+[m[32msection 13, concerning interaction through a network will apply to the[m
+[32m+[m[32mcombination as such.[m
+[32m+[m
+[32m+[m[32m  14. Revised Versions of this License.[m
+[32m+[m
+[32m+[m[32m  The Free Software Foundation may publish revised and/or new versions of[m
+[32m+[m[32mthe GNU General Public License from time to time.  Such new versions will[m
+[32m+[m[32mbe similar in spirit to the present version, but may differ in detail to[m
+[32m+[m[32maddress new problems or concerns.[m
+[32m+[m
+[32m+[m[32m  Each version is given a distinguishing version number.  If the[m
+[32m+[m[32mProgram specifies that a certain numbered version of the GNU General[m
+[32m+[m[32mPublic License "or any later version" applies to it, you have the[m
+[32m+[m[32moption of following the terms and conditions either of that numbered[m
+[32m+[m[32mversion or of any later version published by the Free Software[m
+[32m+[m[32mFoundation.  If the Program does not specify a version number of the[m
+[32m+[m[32mGNU General Public License, you may choose any version ever published[m
+[32m+[m[32mby the Free Software Foundation.[m
+[32m+[m
+[32m+[m[32m  If the Program specifies that a proxy can decide which future[m
+[32m+[m[32mversions of the GNU General Public License can be used, that proxy's[m
+[32m+[m[32mpublic statement of acceptance of a version permanently authorizes you[m
+[32m+[m[32mto choose that version for the Program.[m
+[32m+[m
+[32m+[m[32m  Later license versions may give you additional or different[m
+[32m+[m[32mpermissions.  However, no additional obligations are imposed on any[m
+[32m+[m[32mauthor or copyright holder as a result of your choosing to follow a[m
+[32m+[m[32mlater version.[m
+[32m+[m
+[32m+[m[32m  15. Disclaimer of Warranty.[m
+[32m+[m
+[32m+[m[32m  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY[m
+[32m+[m[32mAPPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT[m
+[32m+[m[32mHOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY[m
+[32m+[m[32mOF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,[m
+[32m+[m[32mTHE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR[m
+[32m+[m[32mPURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM[m
+[32m+[m[32mIS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF[m
+[32m+[m[32mALL NECESSARY SERVICING, REPAIR OR CORRECTION.[m
+[32m+[m
+[32m+[m[32m  16. Limitation of Liability.[m
+[32m+[m
+[32m+[m[32m  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING[m
+[32m+[m[32mWILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS[m
+[32m+[m[32mTHE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY[m
+[32m+[m[32mGENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE[m
+[32m+[m[32mUSE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF[m
+[32m+[m[32mDATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD[m
+[32m+[m[32mPARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),[m
+[32m+[m[32mEVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF[m
+[32m+[m[32mSUCH DAMAGES.[m
+[32m+[m
+[32m+[m[32m  17. Interpretation of Sections 15 and 16.[m
+[32m+[m
+[32m+[m[32m  If the disclaimer of warranty and limitation of liability provided[m
+[32m+[m[32mabove cannot be given local legal effect according to their terms,[m
+[32m+[m[32mreviewing courts shall apply local law that most closely approximates[m
+[32m+[m[32man absolute waiver of all civil liability in connection with the[m
+[32m+[m[32mProgram, unless a warranty or assumption of liability accompanies a[m
+[32m+[m[32mcopy of the Program in return for a fee.[m
+[32m+[m
+[32m+[m[32m                     END OF TERMS AND CONDITIONS[m
+[32m+[m
+[32m+[m[32m            How to Apply These Terms to Your New Programs[m
+[32m+[m
+[32m+[m[32m  If you develop a new program, and you want it to be of the greatest[m
+[32m+[m[32mpossible use to the public, the best way to achieve this is to make it[m
+[32m+[m[32mfree software which everyone can redistribute and change under these terms.[m
+[32m+[m
+[32m+[m[32m  To do so, attach the following notices to the program.  It is safest[m
+[32m+[m[32mto attach them to the start of each source file to most effectively[m
+[32m+[m[32mstate the exclusion of warranty; and each file should have at least[m
+[32m+[m[32mthe "copyright" line and a pointer to where the full notice is found.[m
+[32m+[m
+[32m+[m[32m    {one line to give the program's name and a brief idea of what it does.}[m
+[32m+[m[32m    Copyright (C) {year}  {name of author}[m
+[32m+[m
+[32m+[m[32m    This program is free software: you can redistribute it and/or modify[m
+[32m+[m[32m    it under the terms of the GNU General Public License as published by[m
+[32m+[m[32m    the Free Software Foundation, either version 3 of the License, or[m
+[32m+[m[32m    (at your option) any later version.[m
+[32m+[m
+[32m+[m[32m    This program is distributed in the hope that it will be useful,[m
+[32m+[m[32m    but WITHOUT ANY WARRANTY; without even the implied warranty of[m
+[32m+[m[32m    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the[m
+[32m+[m[32m    GNU General Public License for more details.[m
+[32m+[m
+[32m+[m[32m    You should have received a copy of the GNU General Public License[m
+[32m+[m[32m    along with this program.  If not, see <http://www.gnu.org/licenses/>.[m
+[32m+[m
+[32m+[m[32mAlso add information on how to contact you by electronic and paper mail.[m
+[32m+[m
+[32m+[m[32m  If the program does terminal interaction, make it output a short[m
+[32m+[m[32mnotice like this when it starts in an interactive mode:[m
+[32m+[m
+[32m+[m[32m    {project}  Copyright (C) {year}  {fullname}[m
+[32m+[m[32m    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.[m
+[32m+[m[32m    This is free software, and you are welcome to redistribute it[m
+[32m+[m[32m    under certain conditions; type `show c' for details.[m
+[32m+[m
+[32m+[m[32mThe hypothetical commands `show w' and `show c' should show the appropriate[m
+[32m+[m[32mparts of the General Public License.  Of course, your program's commands[m
+[32m+[m[32mmight be different; for a GUI interface, you would use an "about box".[m
+[32m+[m
+[32m+[m[32m  You should also get your employer (if you work as a programmer) or school,[m
+[32m+[m[32mif any, to sign a "copyright disclaimer" for the program, if necessary.[m
+[32m+[m[32mFor more information on this, and how to apply and follow the GNU GPL, see[m
+[32m+[m[32m<http://www.gnu.org/licenses/>.[m
+[32m+[m
+[32m+[m[32m  The GNU General Public License does not permit incorporating your program[m
+[32m+[m[32minto proprietary programs.  If your program is a subroutine library, you[m
+[32m+[m[32mmay consider it more useful to permit linking proprietary applications with[m
+[32m+[m[32mthe library.  If this is what you want to do, use the GNU Lesser General[m
+[32m+[m[32mPublic License instead of this License.  But first, please read[m
+[32m+[m[32m<http://www.gnu.org/philosophy/why-not-lgpl.html>.[m
